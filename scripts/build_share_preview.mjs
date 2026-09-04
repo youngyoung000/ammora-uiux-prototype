@@ -42,14 +42,11 @@ const html = `<!doctype html>
     <meta name="theme-color" content="#ffffff" />
     <meta name="description" content="Ammora protocol service UI preview" />
     <title>Ammora · Explore UI Preview</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nunito+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
     <style>${style}</style>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module">${script.replaceAll('</script>', '<\\/script>')}</script>
+    <script>${script.replaceAll('</script>', '<\\/script>')}</script>
   </body>
 </html>
 `

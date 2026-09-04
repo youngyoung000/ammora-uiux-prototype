@@ -23,13 +23,22 @@ const getRoute = () => {
 
 const getLaunchToken = () => window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)[1]?.toUpperCase() || 'ETH'
 const getPoolId = () => window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)[1] || 'eth-usdc'
+const getInitialTheme = () => {
+  try {
+    const savedTheme = window.localStorage.getItem('ammora-theme')
+    if (savedTheme) return savedTheme
+  } catch {
+    // Sandboxed previews can block storage access. Theme persistence is optional.
+  }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 export default function App() {
   const [route, setRoute] = useState(getRoute)
   const [launchToken, setLaunchToken] = useState(getLaunchToken)
   const [poolId, setPoolId] = useState(getPoolId)
   const [connected, setConnected] = useState(false)
-  const [theme, setTheme] = useState(() => window.localStorage.getItem('ammora-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+  const [theme, setTheme] = useState(getInitialTheme)
 
   useEffect(() => {
     const syncRoute = () => { setRoute(getRoute()); setLaunchToken(getLaunchToken()); setPoolId(getPoolId()) }
@@ -40,7 +49,11 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    window.localStorage.setItem('ammora-theme', theme)
+    try {
+      window.localStorage.setItem('ammora-theme', theme)
+    } catch {
+      // Keep theme switching functional when persistence is unavailable.
+    }
   }, [theme])
 
   const navigate = (nextRoute) => {
