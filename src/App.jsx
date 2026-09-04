@@ -30,7 +30,7 @@ const getInitialTheme = () => {
   } catch {
     // Sandboxed previews can block storage access. Theme persistence is optional.
   }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'light'
 }
 
 export default function App() {
