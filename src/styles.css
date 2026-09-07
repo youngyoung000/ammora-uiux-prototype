@@ -568,7 +568,7 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
 
 @media (max-width: 760px) {
   .service-main { width: min(100% - 24px, var(--content-max)); padding: 14px 0 44px; }
-  .header-main { height: 64px; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 0 14px; }
+  .header-main { width: 100%; height: 64px; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; padding: 0 8px; }
   .brand, .brand img { width: 116px; height: 31px; }
   .global-search, .network-pill, .header-nav-row, .header-main > .product-nav, .theme-toggle { display: none; }
   .header-actions { gap: 4px; }
@@ -597,7 +597,9 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
   .market-toolbar { padding: 12px; }
   .market-toolbar__left, .market-toolbar__right { width: 100%; }
   .market-toolbar .ds-search { width: 100%; }
-  .market-toolbar__left .ds-segmented { max-width: 100%; overflow-x: auto; }
+  .market-toolbar__left .ds-segmented { width: 100%; max-width: 100%; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; touch-action: pan-x; -webkit-overflow-scrolling: touch; }
+  .market-toolbar__left .ds-segmented::-webkit-scrollbar { display: none; }
+  .market-toolbar__left .ds-segmented button { min-width: max-content; min-height: 42px; padding: 7px 12px; flex: 0 0 auto; line-height: 1.15; white-space: nowrap; }
   .market-toolbar__right .ds-segmented { width: 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .market-toolbar__right .ds-segmented button { min-width: 0; padding: 0 6px; }
   .liquidity-overview { padding: 16px; grid-template-columns: 1fr; }
@@ -661,9 +663,12 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
   .range-chart { --plot-inline: 18px; }
   .range-bars { gap: 4px; }
   .distribution-axis { margin-right: 18px; margin-left: 18px; }
-  .trade-sidebar { grid-column: auto; grid-row: 1; }
-  .market-detail-main { grid-row: 2; }
-  .market-sidebar { grid-row: 3; }
+  .market-sidebar { display: contents; }
+  .market-sidebar .token-summary-card { grid-row: 1; }
+  .market-sidebar .graduation-card { grid-row: 2; }
+  .trade-sidebar { grid-column: auto; grid-row: 3; }
+  .market-detail-main { grid-row: 4; }
+  .market-sidebar .market-facts-card { grid-row: 5; }
   .market-chart { height: 270px; }
   .chart-heading { align-items: flex-start; flex-direction: column; }
   .chart-meta { gap: 8px 14px; }
@@ -679,8 +684,11 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
   .claims-controls .ds-segmented { max-width: 100%; overflow-x: auto; }
   .claims-list article > div:nth-child(2), .claims-list article > .ds-badge { display: none; }
   .app-footer { padding: 18px; align-items: flex-start; flex-direction: column; gap: 12px; }
-  .token-modal-backdrop { padding: 0; align-items: end; }
-  .token-modal { width: 100%; max-height: 88vh; padding: 20px 16px; border-radius: 20px 20px 0 0; }
+  .activity-workspace .panel-title-row .ds-segmented { width: 100%; max-width: 100%; overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; scrollbar-width: none; touch-action: pan-x; -webkit-overflow-scrolling: touch; }
+  .activity-workspace .panel-title-row .ds-segmented::-webkit-scrollbar { display: none; }
+  .activity-workspace .panel-title-row .ds-segmented button { min-width: max-content; min-height: 42px; padding: 7px 12px; flex: 0 0 auto; line-height: 1.15; white-space: nowrap; }
+  .token-modal-backdrop { padding: 0; display: block; background: var(--surface); backdrop-filter: none; }
+  .token-modal { width: 100%; height: 100dvh; max-height: 100dvh; padding: 20px 16px; border: 0; border-radius: 0; }
   .token-modal > header h2 { font-size: 23px; }
   .token-shortcuts { grid-template-columns: repeat(5, minmax(72px, 1fr)); overflow-x: auto; }
   .token-shortcuts button { min-width: 72px; }
@@ -699,7 +707,7 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
   .header-actions .ds-button svg { display: none; }
   .page-tabs { margin-left: -8px; margin-right: -8px; }
   .market-toolbar__left .ds-segmented { width: 100%; }
-  .market-toolbar__left .ds-segmented button { min-width: 0; flex: 1; padding: 0 8px; }
+  .market-toolbar__left .ds-segmented button { min-width: max-content; flex: 0 0 auto; padding: 7px 11px; }
   .token-summary-card, .graduation-card, .market-facts-card, .token-trade-card { padding: 16px; }
   .graduation-card .card-label-row { align-items: flex-start; flex-direction: column; }
   .graduation-card > strong { margin-top: 12px; }

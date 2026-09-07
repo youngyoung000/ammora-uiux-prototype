@@ -304,15 +304,53 @@ with sync_playwright() as playwright:
     page.get_by_role("button", name="Close").click()
 
     mobile = browser.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=1)
+    mobile_errors = []
+    mobile_console_errors = []
+    mobile.on("pageerror", lambda error: mobile_errors.append(str(error)))
+    mobile.on("console", lambda message: mobile_console_errors.append(message.text) if message.type == "error" else None)
     mobile.goto(f"{BASE_URL}create", wait_until="networkidle")
+    mobile_header = mobile.locator(".header-main").bounding_box()
+    assert mobile_header and mobile_header["x"] < 1 and mobile_header["width"] >= 389
+    assert mobile.locator(".header-main").evaluate("el => getComputedStyle(el).paddingLeft") == "8px"
     assert mobile.locator(".quick-select__options > button").count() == 3
     mobile.screenshot(path=OUTPUT / "create-mobile.png", full_page=True)
+
+    mobile.goto(f"{BASE_URL}swap", wait_until="networkidle")
+    mobile.get_by_role("button", name="Select you pay token").click()
+    modal_box = mobile.locator(".token-modal").bounding_box()
+    assert modal_box and modal_box["x"] < 1 and modal_box["y"] < 1
+    assert modal_box["width"] >= 389 and modal_box["height"] >= 843
+    assert mobile.locator(".token-modal-backdrop").evaluate("el => getComputedStyle(el).backdropFilter") == "none"
+    mobile.screenshot(path=OUTPUT / "swap-token-mobile.png", full_page=False)
+    mobile.get_by_role("button", name="Close token selector").click()
+
+    mobile.goto(f"{BASE_URL}explore", wait_until="networkidle")
+    liquidity_categories = mobile.get_by_role("group", name="Liquidity strategy")
+    assert liquidity_categories.evaluate("el => el.scrollWidth > el.clientWidth")
+    assert liquidity_categories.locator("button").first.evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
+    liquidity_categories.evaluate("el => { el.scrollLeft = 100 }")
+    assert liquidity_categories.evaluate("el => el.scrollLeft") > 0
+    mobile.screenshot(path=OUTPUT / "liquidity-list-mobile.png", full_page=False)
+
+    mobile.goto(f"{BASE_URL}pool/eth-usdc", wait_until="networkidle")
+    mobile.get_by_role("button", name="Activity", exact=True).click()
+    activity_categories = mobile.get_by_role("group", name="Activity type")
+    assert activity_categories.evaluate("el => el.scrollWidth > el.clientWidth")
+    activity_categories.evaluate("el => { el.scrollLeft = 140 }")
+    assert activity_categories.evaluate("el => el.scrollLeft") > 0
+    mobile.screenshot(path=OUTPUT / "pool-activity-mobile.png", full_page=False)
+
     mobile.goto(f"{BASE_URL}launch/eth", wait_until="networkidle")
     assert_text(mobile, ".token-trade-card", "Trade ETH")
+    progress_box = mobile.locator(".graduation-card").bounding_box()
+    trade_box = mobile.locator(".trade-sidebar").bounding_box()
+    assert progress_box and trade_box and progress_box["y"] + progress_box["height"] <= trade_box["y"]
     mobile.screenshot(path=OUTPUT / "launch-token-mobile.png", full_page=True)
 
     assert not page_errors, page_errors
     assert not console_errors, console_errors
+    assert not mobile_errors, mobile_errors
+    assert not mobile_console_errors, mobile_console_errors
     browser.close()
 
 print(OUTPUT)
