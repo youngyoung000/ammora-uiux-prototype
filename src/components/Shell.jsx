@@ -7,7 +7,7 @@ const primaryLinks = [
 ]
 
 function Brand({ navigate }) {
-  return <a className="brand" href="#/swap" onClick={(event) => { event.preventDefault(); navigate('swap') }}><img className="brand-original" src="/ammora-logo-optimized.webp" alt="Ammora" /><img className="brand-wordmark" src="/ammora-logo-optimized.webp" alt="" aria-hidden="true" /></a>
+  return <a className="brand" href="#/swap" onClick={(event) => { event.preventDefault(); navigate('swap') }}><img className="brand-original" src={`${import.meta.env.BASE_URL}ammora-logo-optimized.webp`} alt="Ammora" /><img className="brand-wordmark" src={`${import.meta.env.BASE_URL}ammora-logo-optimized.webp`} alt="" aria-hidden="true" /></a>
 }
 
 export function Shell({ route, navigate, connected, setConnected, theme, setTheme, children }) {

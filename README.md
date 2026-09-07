@@ -2,6 +2,10 @@
 
 Frontend-only redesign of Ammora’s functional product experience. The product is organized around user actions—Trade, Liquidity, Launch, and Portfolio—and presented through a shared, accessibility-minded light/dark design system.
 
+## Live preview
+
+[Open the public UI/UX prototype](https://youngyoung000.github.io/ammora-uiux-prototype/#/swap)
+
 ## Preview routes
 
 - `#/swap`

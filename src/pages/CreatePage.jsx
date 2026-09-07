@@ -115,7 +115,8 @@ function AdvancedARLFlow() {
 }
 
 function AssetPairSelector({ first, second, onFirst, onSecond }) {
-  return <div className="pair-inputs asset-pair-inputs"><div className="pair-select"><AssetMark symbol={first} /><DropdownSelect label="Select base token" value={first} onChange={onFirst} options={tokenOptions.filter((token) => token !== second)} /></div><span className="pair-divider">+</span><div className="pair-select"><AssetMark symbol={second} /><DropdownSelect label="Select quote token" value={second} onChange={onSecond} options={tokenOptions.filter((token) => token !== first)} /></div></div>
+  const optionsFor = (excluded) => tokenOptions.filter((token) => token !== excluded).map((token) => ({ value: token, label: token, assetSymbol: token }))
+  return <div className="pair-inputs asset-pair-inputs"><div className="pair-select"><DropdownSelect label="Select base token" value={first} onChange={onFirst} options={optionsFor(second)} /></div><span className="pair-divider">+</span><div className="pair-select"><DropdownSelect label="Select quote token" value={second} onChange={onSecond} options={optionsFor(first)} /></div></div>
 }
 
 function CreationSection({ step, title, children }) { return <section className="creation-section"><header><span>{step}</span><h2>{title}</h2></header>{children}</section> }

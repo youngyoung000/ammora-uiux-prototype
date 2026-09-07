@@ -78,8 +78,14 @@ export function DropdownSelect({ value, onChange, options, label, className = ''
     return () => document.removeEventListener('pointerdown', close)
   }, [])
   return <div className={`ds-select ${open ? 'is-open' : ''} ${className}`} ref={rootRef}>
-    <button type="button" aria-label={label} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}><span>{selected?.label}</span><ChevronDown size={17} /></button>
-    {open && <div className="ds-select__menu" role="listbox" aria-label={label}>{normalized.map((option) => <button type="button" role="option" aria-selected={option.value === value} key={option.value} onClick={() => { onChange(option.value); setOpen(false) }}><span><strong>{option.label}</strong>{option.description && <small>{option.description}</small>}</span>{option.value === value && <Check size={16} />}</button>)}</div>}
+    <button type="button" aria-label={label} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <span className="ds-select__selection">{selected?.assetSymbol && <AssetMark symbol={selected.assetSymbol} size="sm" />}<span>{selected?.label}</span></span>
+      <ChevronDown className="ds-select__chevron" size={17} />
+    </button>
+    {open && <div className="ds-select__menu" role="listbox" aria-label={label}>{normalized.map((option) => <button type="button" role="option" aria-selected={option.value === value} key={option.value} onClick={() => { onChange(option.value); setOpen(false) }}>
+      <span className="ds-select__option">{option.assetSymbol && <AssetMark symbol={option.assetSymbol} size="sm" />}<span><strong>{option.label}</strong>{option.description && <small>{option.description}</small>}</span></span>
+      {option.value === value && <Check size={16} />}
+    </button>)}</div>}
   </div>
 }
 

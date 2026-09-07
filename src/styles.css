@@ -817,11 +817,11 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
 .quick-config-preview { margin-top: 24px; }
 .quick-flow-note { margin: 12px 4px 0; display: flex; align-items: center; gap: 8px; color: var(--ink-muted); font-size: 14px; }
 .quick-flow-note svg { color: var(--positive); }
-.asset-pair-inputs .pair-select { min-height: 64px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 11px; grid-template-columns: auto minmax(0,1fr); background: var(--surface); transition: border-color var(--motion-base), background var(--motion-base); }
+.asset-pair-inputs .pair-select { min-height: 64px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 11px; display: block; background: var(--surface); transition: border-color var(--motion-base), background var(--motion-base); }
 .asset-pair-inputs .pair-select:hover, .asset-pair-inputs .pair-select:focus-within { border-color: var(--key-solid); background: var(--surface-brand-subtle); }
 .asset-pair-inputs .pair-select .ds-select > button { min-height: 62px; padding: 0; border: 0; background: transparent; box-shadow: none; }
 .asset-pair-inputs .pair-select .ds-select > button:hover { background: transparent; }
-.asset-pair-inputs .pair-select .ds-select__menu { left: -49px; right: -1px; }
+.asset-pair-inputs .pair-select .ds-select__menu { left: -15px; right: -15px; }
 .advanced-creation-workspace { margin-top: 28px; display: grid; grid-template-columns: minmax(0,1.35fr) minmax(310px,.65fr); align-items: start; overflow: visible; }
 .creation-form { min-width: 0; border-right: 1px solid var(--line); }
 .creation-section { padding: 26px; border-bottom: 1px solid var(--line); }

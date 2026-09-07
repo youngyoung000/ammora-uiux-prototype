@@ -37,7 +37,7 @@ export default function SwapPage({ connected, setConnected }) {
     <Panel className="swap-panel swap-focus-card" id="swap-workspace">
       <div className="swap-card-title">
         <div><h2>Swap</h2></div>
-        <div className="swap-title-actions"><button aria-label="Swap settings" onClick={() => document.getElementById('swap-settings')?.setAttribute('open', '')}><Settings2 size={18} /></button><span className="giwa-network-mark"><img src="/giwa-black.svg" alt="GIWA" /></span></div>
+        <div className="swap-title-actions"><button aria-label="Swap settings" onClick={() => document.getElementById('swap-settings')?.setAttribute('open', '')}><Settings2 size={18} /></button><span className="giwa-network-mark"><img src={`${import.meta.env.BASE_URL}giwa-black.svg`} alt="GIWA" /></span></div>
       </div>
       <div className="swap-desktop-grid">
         <div className="swap-assets">

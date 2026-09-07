@@ -99,6 +99,10 @@ with sync_playwright() as playwright:
     assert "gradient" in page.get_by_text("Recommended", exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
     assert_text(page, ".config-preview aside", "Opening\nSchedule")
     assert page.locator('[data-flow="quick"] .asset-mark').count() >= 2
+    page.get_by_role("button", name="Select base token").click()
+    assert page.locator('[role="listbox"] .asset-mark').count() == 4
+    assert page.locator('[role="option"]').filter(has_text="ETH").locator(".asset-mark--eth").count() == 1
+    page.get_by_role("button", name="Select base token").click()
     assert page.locator("#advanced-almm-flow, #advanced-arl-flow").count() == 0
     page.screenshot(path=OUTPUT / "create-desktop.png", full_page=True)
     page.get_by_role("button", name="Advanced", exact=True).click()
@@ -171,7 +175,9 @@ with sync_playwright() as playwright:
     page.locator("#launch-token-image").set_input_files("public/ammora-logo-optimized.webp")
     assert_text(page, ".file-upload", "ammora-logo-optimized.webp")
     page.get_by_role("button", name="Select quote asset").click()
+    assert page.locator('[role="listbox"] .asset-mark').count() == 3
     page.get_by_role("option", name="USDC").click()
+    assert page.get_by_role("button", name="Select quote asset").locator(".asset-mark--usdc").count() == 1
     page.get_by_role("button", name="Review transactions").click()
     assert_text(page, ".action-dialog", "Review launch transactions")
     page.get_by_role("button", name="Close").click()
