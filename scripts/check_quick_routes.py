@@ -117,6 +117,12 @@ with sync_playwright() as playwright:
     assert page.locator("#advanced-almm-flow .creation-preview .ds-badge").count() == 0
     assert page.locator("#advanced-almm-flow .creation-sequence").count() == 0
     assert page.locator("#advanced-almm-flow .builder-input-suffix strong").evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
+    assert page.locator(".strategy-image img").first.evaluate("el => getComputedStyle(el).objectFit") == "contain"
+    assert page.locator(".strategy-image img").first.evaluate("el => getComputedStyle(el).transform") == "none"
+    for heading in page.locator(".model-card__heading").all():
+        title_box = heading.locator("h3").bounding_box()
+        badge_box = heading.locator(".ds-badge").bounding_box()
+        assert title_box and badge_box and badge_box["x"] >= title_box["x"] + title_box["width"]
     for label in ["Powered by ALMM", "Powered by ARL"]:
         badge = page.get_by_text(label, exact=True)
         assert "linear-gradient" in badge.evaluate("el => getComputedStyle(el).backgroundImage")
@@ -128,10 +134,22 @@ with sync_playwright() as playwright:
         assert "linear-gradient" in page.get_by_text(label, exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
     page.evaluate("document.documentElement.dataset.theme = 'light'")
     balanced_bar_count = page.locator("#advanced-almm-flow .creation-chart i").count()
+    assert page.locator("#advanced-almm-flow .creation-chart-axis span").count() == balanced_bar_count
+    assert_text(page, "#advanced-almm-flow .creation-chart-axis", "OPEN")
+    balanced_title = page.locator("#advanced-almm-flow .spacing-grid button").filter(has_text="Balanced").locator(".choice-card-title")
+    balanced_label_box = balanced_title.locator("span").first.bounding_box()
+    balanced_badge_box = balanced_title.locator(".ds-badge").bounding_box()
+    assert balanced_label_box and balanced_badge_box and balanced_badge_box["x"] >= balanced_label_box["x"] + balanced_label_box["width"]
+    assert abs(balanced_badge_box["y"] - balanced_label_box["y"]) < 3
     page.get_by_role("button", name="Wide 0.50%").click()
     assert_text(page, "#advanced-almm-flow .creation-preview", "50 bps")
     assert page.locator("#advanced-almm-flow .creation-chart").get_attribute("data-preview-variant") == "50 bps"
     assert page.locator("#advanced-almm-flow .creation-chart i").count() < balanced_bar_count
+    assert_text(page, "#advanced-almm-flow .creation-chart-axis", "-2.0%")
+    assert_text(page, "#advanced-almm-flow .creation-chart-axis", "+2.0%")
+    page.locator("#create-models").screenshot(path=OUTPUT / "create-strategy-cards.png")
+    page.locator("#advanced-almm-flow .creation-preview").screenshot(path=OUTPUT / "create-almm-preview-panel.png")
+    page.screenshot(path=OUTPUT / "create-almm-preview.png", full_page=True)
     page.get_by_role("button", name="Review creation").click()
     assert_text(page, ".action-dialog", "Review ALMM creation")
     page.get_by_role("button", name="Prepare transactions").click()
@@ -141,6 +159,11 @@ with sync_playwright() as playwright:
     assert page.locator("#advanced-arl-flow").is_visible()
     assert page.locator("#advanced-arl-flow .creation-section").count() == 4
     assert page.locator("#advanced-arl-flow .creation-preview .ds-badge").count() == 0
+    dual_title = page.locator("#advanced-arl-flow .choice-grid").first.locator("button").filter(has_text="Dual-sided").locator(".choice-card-title")
+    dual_label_box = dual_title.locator("span").first.bounding_box()
+    dual_badge_box = dual_title.locator(".ds-badge").bounding_box()
+    assert dual_label_box and dual_badge_box and dual_badge_box["x"] >= dual_label_box["x"] + dual_label_box["width"]
+    assert abs(dual_badge_box["y"] - dual_label_box["y"]) < 3
     page.get_by_role("button", name="Single-sided Deposit ETH only").click()
     assert page.locator("#advanced-arl-flow .creation-chart").get_attribute("data-preview-variant") == "Single-sided"
     assert page.locator("#advanced-arl-flow .creation-chart i.is-muted").count() == 6
