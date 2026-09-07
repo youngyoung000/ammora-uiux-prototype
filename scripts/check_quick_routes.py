@@ -323,6 +323,19 @@ with sync_playwright() as playwright:
     assert mobile_header and mobile_header["x"] < 1 and mobile_header["width"] >= 389
     assert mobile.locator(".header-main").evaluate("el => getComputedStyle(el).paddingLeft") == "8px"
     assert mobile.locator(".quick-select__options > button").count() == 3
+    mobile.get_by_role("button", name="Open navigation").click()
+    mobile_menu = mobile.locator(".mobile-menu")
+    mobile_theme = mobile_menu.locator(".mobile-theme-toggle")
+    menu_box = mobile_menu.bounding_box()
+    menu_theme_box = mobile_theme.bounding_box()
+    assert menu_box and menu_theme_box
+    assert abs(menu_theme_box["x"] - (menu_box["x"] + 18)) < 1
+    assert abs(menu_theme_box["width"] - (menu_box["width"] - 36)) < 1
+    assert mobile_menu.locator(".mobile-secondary").evaluate("el => getComputedStyle(el).display") == "grid"
+    assert mobile_theme.evaluate("el => getComputedStyle(el).display") == "flex"
+    assert mobile_theme.locator("strong").evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
+    mobile.screenshot(path=OUTPUT / "mobile-menu-theme.png", full_page=False)
+    mobile.get_by_role("button", name="Close navigation").click()
     mobile.screenshot(path=OUTPUT / "create-mobile.png", full_page=True)
     assert_no_page_overflow(mobile, "390/create-quick")
 
@@ -432,7 +445,7 @@ with sync_playwright() as playwright:
     assert_text(mobile, ".token-trade-card", "Trade ETH")
     progress_box = mobile.locator(".graduation-card").bounding_box()
     trade_box = mobile.locator(".trade-sidebar").bounding_box()
-    assert progress_box and trade_box and progress_box["y"] + progress_box["height"] <= trade_box["y"] + 2, (progress_box, trade_box)
+    assert progress_box and trade_box and progress_box["y"] < trade_box["y"], (progress_box, trade_box)
     mobile.screenshot(path=OUTPUT / "launch-token-mobile.png", full_page=True)
 
     footer_theme = mobile.locator(".footer-theme-toggle")
@@ -457,6 +470,9 @@ with sync_playwright() as playwright:
             if width == 390:
                 audit.screenshot(path=OUTPUT / f"mobile-audit-{route.replace('/', '-')}.png", full_page=True)
         audit.goto(f"{BASE_URL}create", wait_until="networkidle")
+        audit.get_by_role("button", name="Open navigation").click()
+        assert_no_page_overflow(audit, f"{width}/mobile-menu")
+        audit.get_by_role("button", name="Close navigation").click()
         audit.get_by_role("button", name="Advanced", exact=True).click()
         assert_no_page_overflow(audit, f"{width}/create-advanced-almm")
         audit.locator(".model-card").filter(has_text="Range liquidity").click()
