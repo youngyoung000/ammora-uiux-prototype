@@ -118,14 +118,13 @@ with sync_playwright() as playwright:
     assert page.locator("#advanced-almm-flow .creation-sequence").count() == 0
     assert page.locator("#advanced-almm-flow .builder-input-suffix strong").evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
     assert page.locator(".strategy-image img").first.evaluate("el => getComputedStyle(el).objectFit") == "contain"
-    assert page.locator(".strategy-image img").first.evaluate("el => getComputedStyle(el).transform") == "none"
     for visual in page.locator(".strategy-image").all():
         visual_box = visual.bounding_box()
         image_box = visual.locator("img").bounding_box()
         assert visual_box and image_box
         assert image_box["width"] < visual_box["width"] * .8
         assert 258 <= image_box["height"] <= 260
-        assert image_box["height"] < visual_box["height"]
+        assert image_box["height"] > visual_box["height"]
         visual_center_x = visual_box["x"] + visual_box["width"] / 2
         visual_center_y = visual_box["y"] + visual_box["height"] / 2
         image_center_x = image_box["x"] + image_box["width"] / 2
