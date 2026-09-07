@@ -76,9 +76,9 @@ with sync_playwright() as playwright:
     page.locator(".token-modal-search input").fill("GIWA")
     page.locator(".token-modal-list > button").click()
     assert_text(page, ".swap-field:first-of-type .token-select-button", "GIWA")
-    page.locator(".advanced-disclosure summary").click()
+    page.locator("#swap-settings summary").click()
     page.get_by_role("button", name="Direct pool").click()
-    assert_text(page, ".advanced-content", "1 verified pool")
+    assert_text(page, "#swap-settings .advanced-content", "1 verified pool")
     assert_text(page, ".quote-summary", "USDC")
     page.screenshot(path=OUTPUT / "swap-desktop.png", full_page=True)
 
@@ -90,7 +90,7 @@ with sync_playwright() as playwright:
     assert_text(page, ".quick-select__options > button.selected", "Scheduled pool")
     assert "gradient" in page.locator(".quick-select__options > button.selected").evaluate("el => getComputedStyle(el).backgroundImage")
     assert "gradient" in page.get_by_text("Recommended", exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
-    assert_text(page, ".config-preview aside", "Scheduled pool")
+    assert_text(page, ".config-preview aside", "Opening\nSchedule")
     page.screenshot(path=OUTPUT / "create-desktop.png", full_page=True)
     page.get_by_role("button", name="Advanced", exact=True).click()
     assert_text(page, "#create-models", "Select Strategy")
@@ -110,13 +110,27 @@ with sync_playwright() as playwright:
     page.goto(f"{BASE_URL}fees", wait_until="networkidle")
     page.get_by_role("button", name="LP fees").click()
     assert page.locator(".claims-list article").count() == 1
+    page.get_by_role("button", name="Create vault").click()
+    assert_text(page, ".vault-builder", "Recipients")
+    assert_text(page, ".vault-builder", "Total share")
 
     page.goto(f"{BASE_URL}portfolio", wait_until="networkidle")
     assert page.locator(".connect-banner").count() == 0
-    assert_text(page, ".portfolio-panel", "Connect wallet to view your positions")
+    assert_text(page, ".portfolio-panel", "Connect wallet to open your portfolio")
     page.screenshot(path=OUTPUT / "portfolio-disconnected-desktop.png", full_page=True)
-    page.get_by_role("button", name="Activity").click()
-    assert page.locator(".ds-segmented button.active").last.inner_text() == "Activity"
+    page.get_by_role("button", name="Connect wallet", exact=True).click()
+    page.get_by_role("button", name="Limit orders").click()
+    assert_text(page, ".order-list", "Claimable")
+
+    page.goto(f"{BASE_URL}position/8420", wait_until="networkidle")
+    assert_text(page, ".workspace-header", "position #8420")
+    page.get_by_role("button", name="Performance").click()
+    assert_text(page, ".performance-grid", "Realized PnL")
+
+    page.goto(f"{BASE_URL}currency/usdc", wait_until="networkidle")
+    assert_text(page, ".workspace-header", "USD Coin")
+    page.get_by_role("button", name="Deployments").click()
+    assert_text(page, ".deployment-list", "Verified")
 
     page.goto(f"{BASE_URL}launch", wait_until="networkidle")
     page.get_by_role("button", name="Active", exact=True).click()
@@ -146,6 +160,8 @@ with sync_playwright() as playwright:
     assert page.locator("#price-area-gradient stop").count() == 3
     assert "price-line-gradient" in page.locator(".chart-line").evaluate("el => getComputedStyle(el).stroke")
     assert "price-area-gradient" in page.locator(".chart-area").evaluate("el => getComputedStyle(el).fill")
+    page.get_by_role("button", name="Creator tools").click()
+    assert_text(page, ".creator-tools", "Transfer creator")
     page.get_by_role("button", name="Sell").click()
     assert_text(page, ".trade-amount-field", "Sell ETH")
     page.screenshot(path=OUTPUT / "launch-token-desktop.png", full_page=True)
@@ -163,6 +179,16 @@ with sync_playwright() as playwright:
     page.goto(f"{BASE_URL}currencies", wait_until="networkidle")
     page.get_by_role("button", name="Major assets").first.click()
     assert page.locator(".currency-row:not(.currency-head)").count() == 3
+
+    page.goto(f"{BASE_URL}pool/eth-usdc", wait_until="networkidle")
+    page.get_by_role("button", name="Activity", exact=True).click()
+    page.get_by_role("button", name="Liquidity", exact=True).last.click()
+    assert_text(page, ".activity-table", "Add liquidity")
+    page.get_by_role("button", name="Manage pool").click()
+    assert_text(page, ".manage-action-grid", "Zap in")
+    page.get_by_role("button", name="Limit order").click()
+    assert page.get_by_role("dialog").is_visible()
+    page.get_by_role("button", name="Close").click()
 
     mobile = browser.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=1)
     mobile.goto(f"{BASE_URL}create", wait_until="networkidle")

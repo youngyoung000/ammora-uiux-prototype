@@ -14,4 +14,7 @@ export const currencies = [
   { symbol: 'WBTC', name: 'Wrapped Bitcoin', chain: 'GIWA', price: '$108,402', change: '+1.84%', volume: '$1.35B', cap: '$14.19B', liquidity: '$125.25M', holders: '270K', color: '#f7931a' },
   { symbol: 'DAI', name: 'Dai', chain: 'GIWA', price: '$0.9999', change: '-0.01%', volume: '$240.88M', cap: '$4.55B', liquidity: '$62.80M', holders: '689K', color: '#f4b731' },
   { symbol: 'LINK', name: 'Chainlink', chain: 'GIWA', price: '$24.36', change: '+2.09%', volume: '$112.84M', cap: '$15.36B', liquidity: '$38.53M', holders: '412K', color: '#2a5ada' },
+  { symbol: 'GBPM', name: 'Monerium GBP e-money', chain: 'Ethereum', price: '$1.31', change: '+0.08%', volume: '$4.82M', cap: '$18.4M', liquidity: '$2.64M', holders: '18.2K', color: '#2d8b79' },
+  { symbol: 'COPM', name: 'Colombian Peso Token', chain: 'Polygon', price: '$0.00025', change: '-0.12%', volume: '$1.21M', cap: '$9.6M', liquidity: '$1.82M', holders: '9.4K', color: '#e9b949' },
+  { symbol: 'JPYS', name: 'JPY Stablecoin', chain: 'Ethereum', price: '$0.0068', change: '+0.03%', volume: '$2.06M', cap: '$12.8M', liquidity: '$3.12M', holders: '22.1K', color: '#d84a55' },
 ]

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
-import { ArrowLeft, Check, ChevronDown, Info, Settings2 } from 'lucide-react'
+import { ArrowLeft, Bell, Check, ChevronDown, HandCoins, Info, ListOrdered, Settings2, Star, Zap } from 'lucide-react'
 import { Badge, BrandSurface, Button, Metric, PageTabs, Panel, SegmentedControl, StatusDot, WorkspaceHeader } from '../design-system/index.jsx'
+import ActionDialog from '../components/ActionDialog.jsx'
 
 const distributions = {
   Spot: [18, 28, 44, 62, 86, 100, 86, 62, 44, 28, 18],
@@ -28,14 +29,16 @@ export default function PoolDetailPage({ poolId, navigate, connected, setConnect
   const [quoteAmount, setQuoteAmount] = useState('4284.22')
   const [minRange, setMinRange] = useState(percentAt(3840))
   const [maxRange, setMaxRange] = useState(percentAt(4760))
+  const [activityType, setActivityType] = useState('Swaps')
+  const [dialog, setDialog] = useState(null)
   const minPrice = priceAt(minRange)
   const maxPrice = priceAt(maxRange)
 
   return <>
     <button className="back-link" onClick={() => navigate('explore')}><ArrowLeft size={17} />Back to liquidity</button>
-    <WorkspaceHeader title={pair} meta={<><StatusDot>Pool live</StatusDot><Badge tone="neutral">Dynamic liquidity · ALMM</Badge></>} actions={<Button variant="secondary" onClick={() => navigate('swap')}>Trade</Button>} />
+    <WorkspaceHeader title={pair} meta={<><StatusDot>Pool live</StatusDot><Badge tone="neutral">Dynamic liquidity · ALMM</Badge></>} actions={<><Button variant="secondary" onClick={() => setDialog('Create pool alert')} icon={<Bell size={16} />}>Alert</Button><Button variant="secondary" icon={<Star size={16} />}>Save</Button><Button onClick={() => navigate('swap')}>Trade</Button></>} />
     <div className="metrics-grid four pool-metrics"><Metric label="Total liquidity" value="$12.84M" note="Available to trade" /><Metric label="24H volume" value="$28.43M" note="1,284 swaps" /><Metric label="24H fees" value="$42.8K" note="Pool total" /><Metric label="Observed APR" value="18.42%" note="Pool-wide estimate" tone="positive" /></div>
-    <PageTabs items={['Overview', 'Liquidity', 'Positions', 'Fee activity']} value={tab} onChange={setTab} label="Pool details" />
+    <PageTabs items={['Overview', 'Liquidity', 'Activity', 'Positions', 'Manage pool']} value={tab} onChange={setTab} label="Pool details" />
     {tab === 'Liquidity' && <div className="pool-detail-grid">
       <Panel className="liquidity-distribution-panel">
         <div className="panel-title-row pool-liquidity-title"><div><h2 className="type-h3">Set price range</h2><p>Choose a preset, then drag either handle to adjust the active range.</p></div><Badge tone="success">Current price $4,284</Badge></div>
@@ -62,7 +65,9 @@ export default function PoolDetailPage({ poolId, navigate, connected, setConnect
     </div>}
     {tab === 'Overview' && <Panel className="pool-tab-panel"><h2>Pool overview</h2><div className="pool-fact-grid"><span><small>Pair</small><strong>{pair}</strong></span><span><small>Liquidity model</small><strong>Dynamic liquidity</strong></span><span><small>Opening</small><strong>Live</strong></span><span><small>Pool fee</small><strong>0.05% + dynamic</strong></span></div><p><Info size={17} />This market keeps capital near active price bins. Open Liquidity to review the distribution before adding a position.</p></Panel>}
     {tab === 'Positions' && <Panel className="pool-tab-panel pool-empty-state"><strong>{connected ? 'No positions in this pool' : 'Connect to view your positions'}</strong><p>{connected ? 'Add liquidity to open your first position.' : 'Your positions and claimable fees will appear here.'}</p><Button variant="secondary" onClick={() => connected ? setTab('Liquidity') : setConnected(true)}>{connected ? 'Add liquidity' : 'Connect wallet'}</Button></Panel>}
-    {tab === 'Fee activity' && <Panel className="pool-tab-panel"><h2>Fee activity</h2><div className="fee-activity-list"><span><strong>24H LP fees</strong><b>$34.2K</b></span><span><strong>Protocol share</strong><b>$8.6K</b></span><span><strong>Last swap fee</strong><b>0.07%</b></span></div><p><Info size={17} />Fees vary with pool activity. Position earnings depend on which price bins are active.</p></Panel>}
+    {tab === 'Activity' && <Panel className="pool-tab-panel activity-workspace"><div className="panel-title-row"><h2>Pool activity</h2><SegmentedControl items={['Swaps', 'Liquidity', 'Limit orders', 'Fee claims', 'Rewards', 'Zaps']} value={activityType} onChange={setActivityType} label="Activity type" /></div><div className="activity-table"><div><span>Action</span><span>Account</span><span>Amount</span><span>Time</span></div>{[['Buy ETH','0x71A…90E','4,932.53 USDC','18s'],['Add liquidity','0x19F…42B','$12,840.00','8m'],['Claim fee','0x8C2…E11','182.40 USDC','1h']].filter((row, index) => activityType === 'Swaps' ? index === 0 : activityType === 'Liquidity' ? index === 1 : activityType === 'Fee claims' ? index === 2 : true).map((row) => <article key={row[0]}>{row.map((value) => <span key={value}>{value}</span>)}</article>)}</div></Panel>}
+    {tab === 'Manage pool' && <Panel className="pool-tab-panel"><div className="panel-title-row"><h2>Pool tools</h2><Badge tone="neutral">Advanced</Badge></div><div className="manage-action-grid"><button onClick={() => setDialog('Create limit order')}><ListOrdered /><span><strong>Limit order</strong><small>Place liquidity at a target price bin.</small></span></button><button onClick={() => setDialog('Zap in')}><Zap /><span><strong>Zap in</strong><small>Add liquidity with one token.</small></span></button><button onClick={() => setDialog('Claim rewards')}><HandCoins /><span><strong>Rewards</strong><small>Review and claim position incentives.</small></span></button><button onClick={() => setDialog('Update dynamic fee')}><Settings2 /><span><strong>Pool settings</strong><small>Owner-only fee and scheduled-pool controls.</small></span></button></div><details className="advanced-disclosure pool-advanced"><summary><span>Operator controls</span><ChevronDown size={17} /></summary><div className="advanced-content"><dl><div><dt>Base fee</dt><dd>0.05%</dd></div><div><dt>Protocol share</dt><dd>20%</dd></div><div><dt>Dynamic fee</dt><dd>Enabled</dd></div><div><dt>Emergency state</dt><dd>Active</dd></div></dl><Button variant="secondary" onClick={() => setDialog('Claim protocol fees')}>Claim protocol fees</Button></div></details></Panel>}
+    {dialog && <ActionDialog title={dialog} description={dialog.includes('alert') ? 'Choose a condition and delivery channel.' : 'Review exact pool state and protection limits.'} rows={dialog.includes('alert') ? [["Condition", "Price above $4,760"], ["Channel", "In-app + Email"], ["Pool", pair]] : [["Pool", pair], ["Slippage", "0.5%"], ["Deadline", "20 minutes"]]} action={dialog.includes('alert') ? 'Create alert' : 'Review action'} onClose={() => setDialog(null)} />}
   </>
 }
 

@@ -47,6 +47,7 @@ export default function LaunchPage({ navigate }) {
           <label className="builder-field"><span>Token name</span><input value={tokenName} onChange={(event) => setTokenName(event.target.value)} placeholder="Token name" /></label>
           <label className="builder-field"><span>Symbol</span><input value={tokenSymbol} onChange={(event) => setTokenSymbol(event.target.value.toUpperCase().slice(0, 8))} placeholder="TOKEN" /></label>
         </div>
+        <label className="builder-field launch-upload"><span>Token image</span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" /><small>PNG, JPEG, WebP, or GIF · up to 2 MB · cropped square</small></label>
         <div className="launch-builder-heading"><span>2</span><div><h2>Opening market</h2><p>Choose the quote asset and graduation target.</p></div></div>
         <div className="launch-field-grid">
           <label className="builder-field"><span>Paired with</span><select value={quoteAsset} onChange={(event) => setQuoteAsset(event.target.value)}><option>GIWA</option><option>USDC</option><option>ETH</option></select></label>
@@ -54,7 +55,7 @@ export default function LaunchPage({ navigate }) {
         </div>
         {quickRoute === 'first-buy' && <label className="builder-field launch-full-field"><span>First buy</span><div className="builder-input-suffix"><input value={firstBuy} onChange={(event) => setFirstBuy(event.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" /><strong>{quoteAsset}</strong></div><small>Included after the launch transaction is prepared.</small></label>}
         {quickRoute === 'scheduled' && <label className="builder-field launch-full-field"><span>Trading opens</span><input type="datetime-local" value={activation} onChange={(event) => setActivation(event.target.value)} /></label>}
-        <details className="advanced-disclosure launch-advanced"><summary><span>Advanced curve settings</span><ChevronDown size={17} /></summary><div className="advanced-content"><dl><div><dt>Curve</dt><dd>Balanced discovery</dd></div><div><dt>Maximum segments</dt><dd>8</dd></div><div><dt>Migration destination</dt><dd>Permanent range pool</dd></div><div><dt>Slippage protection</dt><dd>0.5%</dd></div></dl></div></details>
+        <details className="advanced-disclosure launch-advanced"><summary><span>Advanced launch settings</span><ChevronDown size={17} /></summary><div className="advanced-content"><label className="builder-field"><span>Reviewed preset</span><select><option>Balanced discovery · Compounding pool</option><option>Fast discovery · Concentrated pool</option></select></label><label className="builder-field"><span>Creator metadata URI</span><input placeholder="ipfs:// or https://" /></label><dl><div><dt>Supply</dt><dd>1B tokens</dd></div><div><dt>Segments</dt><dd>8</dd></div><div><dt>Start fee</dt><dd>1.00%</dd></div><div><dt>Dynamic fee</dt><dd>Enabled</dd></div><div><dt>Migration target</dt><dd>400K {quoteAsset}</dd></div><div><dt>Permanent liquidity</dt><dd>Compounding</dd></div></dl></div></details>
       </div>
       <aside className="launch-create-review">
         <Coins size={24} />
@@ -62,7 +63,7 @@ export default function LaunchPage({ navigate }) {
         <div className="launch-review-token"><BrandSurface>{tokenSymbol.slice(0, 1) || 'T'}</BrandSurface><div><strong>{tokenSymbol || 'TOKEN'} / {quoteAsset}</strong><small>{tokenName || 'Unnamed token'}</small></div></div>
         <dl><div><dt>Setup</dt><dd>{quickRoute === 'first-buy' ? 'First buy' : quickRoute === 'scheduled' ? 'Scheduled' : 'Standard'}</dd></div><div><dt>Target</dt><dd>{Number(fundingTarget || 0).toLocaleString()} {quoteAsset}</dd></div>{quickRoute === 'first-buy' && <div><dt>Initial buy</dt><dd>{firstBuy || '0'} {quoteAsset}</dd></div>}<div><dt>Next state</dt><dd>Trading</dd></div></dl>
         <div className="launch-path"><span className="active">Create</span><i /><span>Trade</span><i /><span>Pool</span></div>
-        <Button className="full-button">Review launch</Button>
+        <Button className="full-button">Review transactions</Button>
         <p className="action-assurance"><Check size={15} />Addresses, fees, and migration rules are shown before signing.</p>
       </aside>
     </Panel>}

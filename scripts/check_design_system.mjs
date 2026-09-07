@@ -31,7 +31,7 @@ const requireMatch = (condition, message) => { if (!condition) failures.push(mes
 requireMatch(tokens.includes('--surface-brand: var(--brand-gradient)'), 'Missing semantic brand-surface token.')
 requireMatch(tokens.includes('--surface-brand-subtle: var(--interaction-gradient)'), 'Missing semantic interaction-surface token.')
 requireMatch(components.includes('.ds-brand-surface'), 'Missing shared ds-brand-surface class.')
-requireMatch(components.includes('background-image: var(--surface-brand)'), 'Brand surface must use the CSS gradient token.')
+requireMatch(components.includes('background: var(--surface-brand) border-box'), 'Brand surface must fill the complete border box with the CSS gradient token.')
 requireMatch(primitives.includes("tone === 'brand' ? 'ds-brand-surface'"), 'Brand badges must opt into ds-brand-surface.')
 requireMatch(primitives.includes('<Badge size="sm" className="quick-select__recommended">Recommended</Badge>'), 'Recommended must use the shared Badge component.')
 requireMatch(createPage.match(/<Badge>Powered by ALMM<\/Badge>/), 'Powered by ALMM must use the shared brand Badge.')

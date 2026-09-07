@@ -1,13 +1,16 @@
 /* Ammora shared product primitives. Page-specific layout belongs in src/styles.css. */
 
 .ds-brand-surface {
+  position: relative;
+  isolation: isolate;
   color: var(--on-brand);
-  background-color: var(--brand-blue);
-  background-image: var(--surface-brand);
+  border: 0;
+  background: var(--surface-brand) border-box;
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 100% 100%;
+  background-size: cover;
   background-clip: border-box;
+  box-shadow: none;
 }
 
 .ds-panel {

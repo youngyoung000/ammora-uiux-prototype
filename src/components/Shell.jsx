@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ExternalLink, FileText, Menu, Moon, Sun, X } from 'lucide-react'
+import { ChevronDown, ExternalLink, FileText, Menu, Moon, Search, Sun, X } from 'lucide-react'
 import { Button, StatusDot } from '../design-system/index.jsx'
 
 const primaryLinks = [
@@ -12,6 +12,7 @@ function Brand({ navigate }) {
 
 export function Shell({ route, navigate, connected, setConnected, theme, setTheme, children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
 
   const go = (event, nextRoute) => {
     event.preventDefault()
@@ -21,7 +22,7 @@ export function Shell({ route, navigate, connected, setConnected, theme, setThem
 
   const isActive = (key) => {
     if (key === 'explore') return route === 'explore' || route === 'create' || route === 'pool-detail'
-    if (key === 'portfolio') return route === 'portfolio' || route === 'fees'
+    if (key === 'portfolio') return route === 'portfolio' || route === 'fees' || route === 'position-detail'
     if (key === 'launch') return route === 'launch' || route === 'launch-detail'
     return route === key
   }
@@ -34,6 +35,8 @@ export function Shell({ route, navigate, connected, setConnected, theme, setThem
           {primaryLinks.map(([key, label]) => <a key={key} className={isActive(key) ? 'active' : ''} href={`#/${key}`} onClick={(event) => go(event, key)}>{label}</a>)}
         </nav>
         <div className="header-actions">
+          <button className="header-search" onClick={() => navigate('explore')} aria-label="Search pools and tokens"><Search size={17} /><span>Search</span></button>
+          <div className="more-dropdown"><button onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen}>More <ChevronDown size={15} /></button>{moreOpen && <div><a href="#/currencies" onClick={(event) => go(event, 'currencies')}>Token directory</a><a href="#/fees" onClick={(event) => go(event, 'fees')}>Revenue sharing</a><a href="https://ammora-docs.vercel.app">Documentation</a></div>}</div>
           <div className="network-pill"><StatusDot>GIWA</StatusDot><small>Testnet · 91342</small></div>
           <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}</button>
           <Button size="sm" onClick={() => setConnected(!connected)}>{connected ? '0x8F2…91A' : 'Connect Wallet'}</Button>

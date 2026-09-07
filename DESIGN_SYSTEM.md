@@ -51,7 +51,7 @@ The gradient has one implementation path:
 ```css
 .ds-brand-surface {
   background-color: var(--brand-blue);
-  background-image: var(--surface-brand);
+  background: var(--surface-brand) border-box;
 }
 ```
 

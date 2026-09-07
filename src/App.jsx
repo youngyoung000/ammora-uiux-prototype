@@ -9,6 +9,8 @@ import CurrenciesPage from './pages/CurrenciesPage.jsx'
 import FeesPage from './pages/FeesPage.jsx'
 import LaunchDetailPage from './pages/LaunchDetailPage.jsx'
 import PoolDetailPage from './pages/PoolDetailPage.jsx'
+import CurrencyDetailPage from './pages/CurrencyDetailPage.jsx'
+import PositionDetailPage from './pages/PositionDetailPage.jsx'
 
 const validRoutes = ['explore', 'swap', 'portfolio', 'create', 'launch', 'currencies', 'fees']
 const getRoute = () => {
@@ -18,11 +20,14 @@ const getRoute = () => {
   if (hashRoute === 'launch' && hashParts[1] === 'create') return 'launch'
   if (hashRoute === 'launch' && hashParts[1]) return 'launch-detail'
   if (hashRoute === 'pool' && hashParts[1]) return 'pool-detail'
+  if (hashRoute === 'currency' && hashParts[1]) return 'currency-detail'
+  if (hashRoute === 'position' && hashParts[1]) return 'position-detail'
   return validRoutes.includes(hashRoute) ? hashRoute : validRoutes.includes(pathRoute) ? pathRoute : 'swap'
 }
 
 const getLaunchToken = () => window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)[1]?.toUpperCase() || 'ETH'
 const getPoolId = () => window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)[1] || 'eth-usdc'
+const getEntityId = () => window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)[1] || 'eth-usdc'
 const getInitialTheme = () => {
   try {
     const savedTheme = window.localStorage.getItem('ammora-theme')
@@ -37,11 +42,12 @@ export default function App() {
   const [route, setRoute] = useState(getRoute)
   const [launchToken, setLaunchToken] = useState(getLaunchToken)
   const [poolId, setPoolId] = useState(getPoolId)
+  const [entityId, setEntityId] = useState(getEntityId)
   const [connected, setConnected] = useState(false)
   const [theme, setTheme] = useState(getInitialTheme)
 
   useEffect(() => {
-    const syncRoute = () => { setRoute(getRoute()); setLaunchToken(getLaunchToken()); setPoolId(getPoolId()) }
+    const syncRoute = () => { setRoute(getRoute()); setLaunchToken(getLaunchToken()); setPoolId(getPoolId()); setEntityId(getEntityId()) }
     window.addEventListener('hashchange', syncRoute)
     window.addEventListener('popstate', syncRoute)
     return () => { window.removeEventListener('hashchange', syncRoute); window.removeEventListener('popstate', syncRoute) }
@@ -58,9 +64,10 @@ export default function App() {
 
   const navigate = (nextRoute) => {
     window.location.hash = `/${nextRoute}`
-    setRoute(nextRoute.startsWith('launch/') ? 'launch-detail' : nextRoute.startsWith('pool/') ? 'pool-detail' : nextRoute)
+    setRoute(nextRoute.startsWith('launch/') && nextRoute !== 'launch/create' ? 'launch-detail' : nextRoute.startsWith('pool/') ? 'pool-detail' : nextRoute.startsWith('currency/') ? 'currency-detail' : nextRoute.startsWith('position/') ? 'position-detail' : nextRoute === 'launch/create' ? 'launch' : nextRoute)
     if (nextRoute.startsWith('launch/')) setLaunchToken(nextRoute.split('/')[1].toUpperCase())
     if (nextRoute.startsWith('pool/')) setPoolId(nextRoute.split('/')[1])
+    if (nextRoute.startsWith('currency/') || nextRoute.startsWith('position/')) setEntityId(nextRoute.split('/')[1])
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -72,8 +79,10 @@ export default function App() {
     launch: <LaunchPage navigate={navigate} />,
     'launch-detail': <LaunchDetailPage symbol={launchToken} navigate={navigate} connected={connected} setConnected={setConnected} />,
     'pool-detail': <PoolDetailPage poolId={poolId} navigate={navigate} connected={connected} setConnected={setConnected} />,
-    currencies: <CurrenciesPage />,
+    currencies: <CurrenciesPage navigate={navigate} />,
     fees: <FeesPage connected={connected} setConnected={setConnected} navigate={navigate} />,
+    'currency-detail': <CurrencyDetailPage symbol={entityId} navigate={navigate} />,
+    'position-detail': <PositionDetailPage positionId={entityId} navigate={navigate} connected={connected} setConnected={setConnected} />,
   }
 
   return <Shell route={route} navigate={navigate} connected={connected} setConnected={setConnected} theme={theme} setTheme={setTheme}>{pages[route]}</Shell>

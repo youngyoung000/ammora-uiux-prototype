@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { ArrowLeft, Check, ChevronDown, Copy, ExternalLink, Info, Share2, ShieldCheck, Star, Users } from 'lucide-react'
+import { ArrowLeft, Check, ChevronDown, Copy, ExternalLink, HandCoins, Info, Share2, ShieldCheck, Star, UserRoundCog, Users, Waves } from 'lucide-react'
 import { Badge, Button, Metric, PageTabs, Panel, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
+import ActionDialog from '../components/ActionDialog.jsx'
 
 const tokenProfiles = {
   ETH: { name: 'Ethereum', quote: 'GIWA', price: '3,842.16 GIWA', unitPrice: 3842.16, change: '+6.84%', cap: '1.94B GIWA', volume: '2.84M GIWA', holders: '8,420', progress: 68, color: '#627eea', created: '3h ago' },
@@ -22,6 +23,7 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
   const [tradeMode, setTradeMode] = useState('Buy')
   const [amount, setAmount] = useState('5000')
   const [section, setSection] = useState('Transactions')
+  const [dialog, setDialog] = useState(null)
   const unitPrice = token.unitPrice || 0.1284
   const estimate = tradeMode === 'Buy' ? (Number(amount || 0) / unitPrice).toLocaleString(undefined, { maximumFractionDigits: 4 }) : (Number(amount || 0) * unitPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })
   const selectTradeMode = (mode) => {
@@ -84,10 +86,11 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
         </Panel>
 
         <Panel className="market-activity-panel">
-          <PageTabs items={['Transactions', 'Holders', 'Market info']} value={section} onChange={setSection} label="Token market details" />
+          <PageTabs items={['Transactions', 'Holders', 'Market info', 'Creator tools']} value={section} onChange={setSection} label="Token market details" />
           {section === 'Transactions' && <div className="trade-list"><div className="trade-row trade-head"><span>Type</span><span>Wallet</span><span>Amount</span><span>Value</span><span>Time</span></div>{trades.map((trade, index) => <div className="trade-row" key={`${trade.wallet}-${index}`}><strong className={trade.type === 'Buy' ? 'positive-value' : 'negative-value'}>{trade.type}</strong><span>{trade.wallet}</span><span>{trade.amount}</span><strong>{trade.value}</strong><span>{trade.time}</span></div>)}</div>}
           {section === 'Holders' && <div className="detail-empty"><Users size={25} /><strong>{token.holders} holder addresses</strong><p>Ownership concentration and reviewed wallet activity will appear here.</p></div>}
           {section === 'Market info' && <div className="detail-empty"><Info size={25} /><strong>Onchain market state</strong><p>ALC config, token policy, freshness, and graduation bindings are verified before actions.</p></div>}
+          {section === 'Creator tools' && <div className="manage-action-grid creator-tools"><button onClick={() => setDialog(token.progress === 100 ? 'Open permanent pool' : 'Graduate to permanent pool')}><Waves /><span><strong>{token.progress === 100 ? 'View permanent pool' : 'Graduate market'}</strong><small>Continue market liquidity in the reviewed destination pool.</small></span></button><button onClick={() => setDialog('Claim launch surplus')}><HandCoins /><span><strong>Claim surplus</strong><small>Claim assets remaining after settlement.</small></span></button><button onClick={() => setDialog('Withdraw leftover assets')}><HandCoins /><span><strong>Withdraw leftovers</strong><small>Recover assets not used during migration.</small></span></button><button onClick={() => setDialog('Transfer creator role')}><UserRoundCog /><span><strong>Transfer creator</strong><small>Move creator-only rights to another wallet.</small></span></button></div>}
         </Panel>
       </section>
 
@@ -104,5 +107,6 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
         </Panel>
       </aside>
     </div>
+    {dialog && <ActionDialog title={dialog} description="Creator authority and live onchain state are checked before signing." rows={[["Market", `${displaySymbol} / ${token.quote}`], ["Current state", token.progress === 100 ? "Graduated" : "Trading"], ["Creator", "0x4D2…881"]]} action="Review action" onClose={() => setDialog(null)} />}
   </>
 }

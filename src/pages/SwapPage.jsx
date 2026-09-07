@@ -19,6 +19,8 @@ export default function SwapPage({ connected, setConnected }) {
   const [amount, setAmount] = useState('1')
   const [routeMode, setRouteMode] = useState('Best price')
   const [tokenModal, setTokenModal] = useState(null)
+  const [slippage, setSlippage] = useState('0.5%')
+  const [deadline, setDeadline] = useState('20')
   const rates = { 'ETH-USDC': 4284.22, 'USDC-GIWA': 1.2842, 'USDT-USDC': 1.0003, 'GIWA-USDC': .7787 }
   const rate = rates[`${payToken}-${receiveToken}`] || 1.2842
   const received = amount ? (Number(amount) * rate).toLocaleString(undefined, { maximumFractionDigits: 4 }) : ''
@@ -34,8 +36,8 @@ export default function SwapPage({ connected, setConnected }) {
   return <>
     <Panel className="swap-panel swap-focus-card" id="swap-workspace">
       <div className="swap-card-title">
-        <div><h2>Swap</h2><p>Enter an amount and review the quote.</p></div>
-        <span className="giwa-network-mark"><img src="/giwa-black.svg" alt="GIWA" /></span>
+        <div><h2>Swap</h2></div>
+        <div className="swap-title-actions"><button aria-label="Swap settings" onClick={() => document.getElementById('swap-settings')?.setAttribute('open', '')}><Settings2 size={18} /></button><span className="giwa-network-mark"><img src="/giwa-black.svg" alt="GIWA" /></span></div>
       </div>
       <div className="swap-desktop-grid">
         <div className="swap-assets">
@@ -46,15 +48,16 @@ export default function SwapPage({ connected, setConnected }) {
         <div className="swap-review-pane">
           <div className="swap-review-title"><span>Quote</span><strong>Best available route</strong></div>
           {amount && <div className="quote-summary"><div><span>Rate</span><strong>1 {payToken} = {rate.toLocaleString()} {receiveToken}</strong></div><div><span>Minimum received</span><strong>{minimum} {receiveToken}</strong></div><div><span>Price impact</span><strong className="positive-value">&lt; 0.01%</strong></div></div>}
-          <details className="advanced-disclosure">
+          <details className="advanced-disclosure" id="swap-settings">
             <summary><span><Settings2 size={17} />Route & transaction details</span><ChevronDown size={17} /></summary>
-            <div className="advanced-content"><SegmentedControl items={['Best price', 'Direct pool']} value={routeMode} onChange={setRouteMode} label="Swap route" /><dl><div><dt>Route</dt><dd>{routeMode === 'Best price' ? '3 reviewed routes' : '1 verified pool'}</dd></div><div><dt>Slippage</dt><dd>0.5%</dd></div><div><dt>Fee</dt><dd>0.05%</dd></div><div><dt>Deadline</dt><dd>20 minutes</dd></div></dl></div>
+            <div className="advanced-content"><SegmentedControl items={['Best price', 'Direct pool']} value={routeMode} onChange={setRouteMode} label="Swap route" /><div className="swap-setting-row"><span>Slippage</span><SegmentedControl items={['0.1%', '0.5%', '1%', 'Custom']} value={slippage} onChange={setSlippage} label="Slippage" /></div><label className="inline-setting"><span>Deadline</span><input value={deadline} onChange={(event) => setDeadline(event.target.value.replace(/\D/g, ''))} /><strong>minutes</strong></label><dl><div><dt>Route</dt><dd>{routeMode === 'Best price' ? '3 reviewed routes' : '1 verified pool'}</dd></div><div><dt>Routing fee</dt><dd>0.05%</dd></div><div><dt>Approval</dt><dd>Prepared separately</dd></div></dl></div>
           </details>
           <Button className="full-button" onClick={() => setConnected(true)}>{connected ? 'Review swap' : 'Connect wallet'}</Button>
           <p className="action-assurance"><Check size={15} />Minimum received and route are checked again before signing.</p>
         </div>
       </div>
     </Panel>
+    <details className="advanced-disclosure recent-swap-disclosure"><summary><span>Recent swaps</span><ChevronDown size={17} /></summary><div className="advanced-content timeline-list"><article><Check size={17} /><div><strong>0.5 ETH → 2,142.11 USDC</strong><span>Best route · Confirmed</span></div><time>This session</time></article></div></details>
     {tokenModal && <TokenSelectorModal side={tokenModal} selected={tokenModal === 'pay' ? payToken : receiveToken} onSelect={chooseToken} onClose={() => setTokenModal(null)} />}
   </>
 }
