@@ -98,6 +98,7 @@ Do not use screenshots, PNGs, WebPs, SVG backgrounds, inline `style` gradients, 
 - `SectionHeading`: section hierarchy and optional trailing action
 - `Metric`: label, value and contextual note
 - `SearchField`: accessible product search input
+- `DateTimeInput`: contained, Safari-safe date/time control with a consistent visual value and a full native picker touch target
 - `SegmentedControl`: filters and view switching
 - `StatusDot`: network and lifecycle status
 - `TokenIcon` / `TokenPair`: consistent asset identification; symbols are never shown without an identifying mark in transaction inputs

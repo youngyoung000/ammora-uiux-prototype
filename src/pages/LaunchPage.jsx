@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ArrowUpRight, CalendarClock, Check, ChevronDown, Coins, ImagePlus, Rocket, Sparkles, Star } from 'lucide-react'
-import { Badge, BrandSurface, Button, DropdownSelect, PageTabs, Panel, QuickSelect, SearchField, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
+import { Badge, BrandSurface, Button, DateTimeInput, DropdownSelect, PageTabs, Panel, QuickSelect, SearchField, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
 import { FlowSteps, MiniTrend } from '../components/Common.jsx'
 import ActionDialog from '../components/ActionDialog.jsx'
 
@@ -68,7 +68,7 @@ export default function LaunchPage({ navigate, watchedLaunches, toggleWatchedLau
           <label className="builder-field"><span>Graduation target</span><div className="builder-input-suffix"><input value={fundingTarget} onChange={(event) => setFundingTarget(event.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" /><strong>{quoteAsset}</strong></div></label>
         </div>
         {quickRoute === 'first-buy' && <label className="builder-field launch-full-field"><span>First buy</span><div className="builder-input-suffix"><input value={firstBuy} onChange={(event) => setFirstBuy(event.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" /><strong>{quoteAsset}</strong></div><small>Included after the launch transaction is prepared.</small></label>}
-        {quickRoute === 'scheduled' && <label className="builder-field launch-full-field"><span>Trading opens</span><input type="datetime-local" value={activation} onChange={(event) => setActivation(event.target.value)} /></label>}
+        {quickRoute === 'scheduled' && <label className="builder-field launch-full-field"><span>Trading opens</span><DateTimeInput value={activation} onChange={(event) => setActivation(event.target.value)} label="Select launch opening date and time" /></label>}
         <details className="advanced-disclosure launch-advanced"><summary><span>Advanced launch settings</span><ChevronDown size={17} /></summary><div className="advanced-content"><div className="builder-field"><span>Reviewed preset</span><DropdownSelect label="Select reviewed launch preset" value={launchPreset} onChange={setLaunchPreset} options={[{ value: 'Balanced discovery · Compounding pool', label: 'Balanced discovery', description: 'Compounding permanent liquidity' }, { value: 'Fast discovery · Concentrated pool', label: 'Fast discovery', description: 'Concentrated permanent liquidity' }]} /></div><label className="builder-field"><span>Creator metadata URI</span><input placeholder="ipfs:// or https://" /></label><dl><div><dt>Supply</dt><dd>1B tokens</dd></div><div><dt>Segments</dt><dd>8</dd></div><div><dt>Start fee</dt><dd>1.00%</dd></div><div><dt>Dynamic fee</dt><dd>Enabled</dd></div><div><dt>Migration target</dt><dd>400K {quoteAsset}</dd></div><div><dt>Permanent liquidity</dt><dd>{launchPreset.includes('Compounding') ? 'Compounding' : 'Concentrated'}</dd></div></dl></div></details>
       </div>
       <aside className="launch-create-review">

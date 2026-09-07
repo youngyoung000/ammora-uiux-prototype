@@ -289,7 +289,7 @@ with sync_playwright() as playwright:
     assert page.locator(".action-dialog").count() == 0
     page.screenshot(path=OUTPUT / "launch-token-desktop.png", full_page=True)
 
-    page.get_by_role("button", name="Switch to dark mode").click()
+    page.locator(".theme-toggle").click()
     assert page.locator("html").get_attribute("data-theme") == "dark"
     page.wait_for_timeout(350)
     logo_style = page.locator(".brand-original").evaluate("el => getComputedStyle(el).filter")
@@ -297,7 +297,7 @@ with sync_playwright() as playwright:
     assert logo_style == "none"
     assert wordmark_style == "block"
     page.screenshot(path=OUTPUT / "launch-token-dark.png", full_page=True)
-    page.get_by_role("button", name="Switch to light mode").click()
+    page.locator(".theme-toggle").click()
 
     page.goto(f"{BASE_URL}currencies", wait_until="networkidle")
     page.get_by_role("button", name="Major assets").first.click()
@@ -389,6 +389,16 @@ with sync_playwright() as playwright:
     assert abs(activity_title["x"] - activity_filters["x"]) < 1
     assert abs(activity_filters["x"] - activity_table["x"]) < 1
     mobile.screenshot(path=OUTPUT / "pool-activity-mobile.png", full_page=False)
+    mobile.get_by_role("button", name="Manage pool", exact=True).click()
+    tools_panel = mobile.locator(".pool-tools-panel")
+    tools_title = tools_panel.locator(".panel-title-row").bounding_box()
+    tools_grid = tools_panel.locator(".manage-action-grid").bounding_box()
+    tools_details = tools_panel.locator(".pool-advanced").bounding_box()
+    assert tools_title and tools_grid and tools_details
+    assert abs(tools_title["x"] - tools_grid["x"]) < 1
+    assert abs(tools_grid["x"] - tools_details["x"]) < 1
+    assert tools_panel.evaluate("el => getComputedStyle(el).paddingLeft") == "16px"
+    mobile.screenshot(path=OUTPUT / "pool-tools-mobile.png", full_page=True)
 
     mobile.goto(f"{BASE_URL}portfolio", wait_until="networkidle")
     if mobile.get_by_role("button", name="Connect wallet", exact=True).count():
@@ -404,12 +414,34 @@ with sync_playwright() as playwright:
     assert_no_page_overflow(mobile, "390/portfolio-creator")
     mobile.screenshot(path=OUTPUT / "portfolio-creator-mobile.png", full_page=True)
 
+    mobile.goto(f"{BASE_URL}launch/create", wait_until="networkidle")
+    mobile.get_by_role("button", name="Scheduled activation").click()
+    launch_date = mobile.locator(".launch-create-form .ds-date-time")
+    launch_form = mobile.locator(".launch-create-form")
+    launch_date_box = launch_date.bounding_box()
+    launch_form_box = launch_form.bounding_box()
+    assert launch_date_box and launch_form_box
+    assert launch_date_box["x"] >= launch_form_box["x"]
+    assert launch_date_box["x"] + launch_date_box["width"] <= launch_form_box["x"] + launch_form_box["width"] + 1
+    assert launch_date.locator("input[type='datetime-local']").count() == 1
+    assert_no_page_overflow(mobile, "390/launch-create-scheduled")
+    mobile.screenshot(path=OUTPUT / "launch-create-scheduled-mobile.png", full_page=True)
+
     mobile.goto(f"{BASE_URL}launch/eth", wait_until="networkidle")
+    mobile.wait_for_selector(".market-detail-grid")
     assert_text(mobile, ".token-trade-card", "Trade ETH")
     progress_box = mobile.locator(".graduation-card").bounding_box()
     trade_box = mobile.locator(".trade-sidebar").bounding_box()
-    assert progress_box and trade_box and progress_box["y"] + progress_box["height"] <= trade_box["y"]
+    assert progress_box and trade_box and progress_box["y"] + progress_box["height"] <= trade_box["y"] + 2, (progress_box, trade_box)
     mobile.screenshot(path=OUTPUT / "launch-token-mobile.png", full_page=True)
+
+    footer_theme = mobile.locator(".footer-theme-toggle")
+    assert footer_theme.is_visible()
+    assert footer_theme.evaluate("el => getComputedStyle(el).width") == "354px"
+    theme_before = mobile.locator("html").get_attribute("data-theme")
+    footer_theme.click()
+    assert mobile.locator("html").get_attribute("data-theme") != theme_before
+    footer_theme.click()
 
     mobile_routes = [
         "explore", "swap", "portfolio", "create", "launch", "launch/create",

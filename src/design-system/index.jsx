@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Check, ChevronDown, Search } from 'lucide-react'
+import { ArrowRight, CalendarDays, Check, ChevronDown, Search } from 'lucide-react'
 
 export function Button({ children, variant = 'primary', size = 'md', icon, className = '', ...props }) {
   return <button className={`ds-button ds-button--${variant} ds-button--${size} ${className}`} {...props}>{children}{icon || (variant === 'primary' ? <ArrowRight size={17} /> : null)}</button>
@@ -61,6 +61,21 @@ export function Metric({ label, value, note, tone }) {
 
 export function SearchField({ value, onChange, placeholder = 'Search', className = '' }) {
   return <label className={`ds-field ds-search ${className}`}><Search size={18} /><input value={value} onChange={onChange} placeholder={placeholder} /></label>
+}
+
+export function DateTimeInput({ value, defaultValue = '', onChange, label = 'Select date and time' }) {
+  const [internalValue, setInternalValue] = useState(defaultValue)
+  const currentValue = value ?? internalValue
+  const match = currentValue.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/)
+  const displayValue = match ? `${match[1]}. ${Number(match[2])}. ${Number(match[3])}. ${match[4]}:${match[5]}` : currentValue
+  const update = (event) => {
+    setInternalValue(event.target.value)
+    onChange?.(event)
+  }
+  return <span className="ds-date-time">
+    <span>{displayValue || 'Choose date and time'}</span><CalendarDays size={17} />
+    <input type="datetime-local" value={currentValue} onChange={update} aria-label={label} />
+  </span>
 }
 
 export function SegmentedControl({ items, value, onChange, label }) {
