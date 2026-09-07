@@ -95,6 +95,16 @@ with sync_playwright() as playwright:
     page.get_by_role("button", name="Advanced", exact=True).click()
     assert_text(page, "#create-models", "Select Strategy")
     assert page.locator("#create-models .section-eyebrow, .config-preview .section-eyebrow, .config-preview .section-heading p").count() == 0
+    for label in ["Powered by ALMM", "Powered by ARL"]:
+        badge = page.get_by_text(label, exact=True)
+        assert "linear-gradient" in badge.evaluate("el => getComputedStyle(el).backgroundImage")
+        assert badge.evaluate("el => getComputedStyle(el).borderTopWidth") == "0px"
+        assert badge.get_attribute("style") is None
+        assert badge.locator("img").count() == 0
+    page.evaluate("document.documentElement.dataset.theme = 'dark'")
+    for label in ["Powered by ALMM", "Powered by ARL"]:
+        assert "linear-gradient" in page.get_by_text(label, exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
+    page.evaluate("document.documentElement.dataset.theme = 'light'")
     page.screenshot(path=OUTPUT / "create-advanced-desktop.png", full_page=True)
 
     page.goto(f"{BASE_URL}fees", wait_until="networkidle")

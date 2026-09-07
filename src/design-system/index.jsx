@@ -5,8 +5,13 @@ export function Button({ children, variant = 'primary', size = 'md', icon, class
   return <button className={`ds-button ds-button--${variant} ds-button--${size} ${className}`} {...props}>{children}{icon || (variant === 'primary' ? <ArrowRight size={17} /> : null)}</button>
 }
 
-export function Badge({ children, tone = 'brand', dot = false, className = '' }) {
-  return <span className={`ds-badge ds-badge--${tone} ${className}`}>{dot && <i />}{children}</span>
+export function BrandSurface({ children, as: Tag = 'span', className = '', ...props }) {
+  return <Tag className={`ds-brand-surface ${className}`} {...props}>{children}</Tag>
+}
+
+export function Badge({ children, tone = 'brand', size = 'md', dot = false, className = '' }) {
+  const brandClass = tone === 'brand' ? 'ds-brand-surface' : ''
+  return <span className={`ds-badge ds-badge--${tone} ds-badge--${size} ${brandClass} ${className}`}>{dot && <i />}{children}</span>
 }
 
 export function Panel({ children, className = '', as: Tag = 'section', ...props }) {
@@ -85,7 +90,7 @@ export function QuickSelect({ title = 'Choose a quick route', description, optio
       >
         <span className="quick-select__icon">{option.icon}</span>
         <span className="quick-select__copy">
-          <span>{option.recommended && <em>Recommended</em>}{option.meta}</span>
+          <span>{option.recommended && <Badge size="sm" className="quick-select__recommended">Recommended</Badge>}{option.meta}</span>
           <strong>{option.label}</strong>
           <small>{option.description}</small>
         </span>

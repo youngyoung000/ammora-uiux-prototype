@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { ArrowLeft, Check, ChevronDown, Info, Settings2 } from 'lucide-react'
-import { Badge, Button, Metric, PageTabs, Panel, SegmentedControl, StatusDot, WorkspaceHeader } from '../design-system/index.jsx'
+import { Badge, BrandSurface, Button, Metric, PageTabs, Panel, SegmentedControl, StatusDot, WorkspaceHeader } from '../design-system/index.jsx'
 
 const distributions = {
   Spot: [18, 28, 44, 62, 86, 100, 86, 62, 44, 28, 18],
@@ -94,7 +94,7 @@ function LiquidityRangeChart({ distribution, minRange, maxRange, setMinRange, se
         const position = index / (distribution.length - 1) * 100
         return <i key={index} style={{ height: `${height}%` }} className={position >= minRange && position <= maxRange ? 'in-range' : ''} />
       })}</div>
-      <div className="current-range-marker"><span>Current price</span></div>
+      <div className="current-range-marker"><BrandSurface>Current price</BrandSurface></div>
       <button type="button" role="slider" className="range-handle range-handle--min" aria-label="Minimum price range" aria-valuemin={RANGE_FLOOR} aria-valuemax={priceAt(maxRange - 8)} aria-valuenow={priceAt(minRange)} onPointerDown={(event) => event.currentTarget.setPointerCapture(event.pointerId)} onPointerMove={(event) => event.currentTarget.hasPointerCapture(event.pointerId) && moveHandle('min', event.clientX)} onKeyDown={(event) => keyHandle('min', event)}><span>{minDeltaLabel}</span></button>
       <button type="button" role="slider" className="range-handle range-handle--max" aria-label="Maximum price range" aria-valuemin={priceAt(minRange + 8)} aria-valuemax={RANGE_CEILING} aria-valuenow={priceAt(maxRange)} onPointerDown={(event) => event.currentTarget.setPointerCapture(event.pointerId)} onPointerMove={(event) => event.currentTarget.hasPointerCapture(event.pointerId) && moveHandle('max', event.clientX)} onKeyDown={(event) => keyHandle('max', event)}><span>{maxDeltaLabel}</span></button>
     </div>

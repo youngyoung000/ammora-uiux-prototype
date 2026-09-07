@@ -16,7 +16,9 @@ Frontend-only redesign of Ammora’s functional product experience. The product 
 
 ## Design system
 
-Foundations and component usage are documented in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md). Tokens live in `src/design-system/tokens.css` and shared React primitives live in `src/design-system/index.jsx`.
+Foundations and component usage are documented in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md). Tokens live in `src/design-system/tokens.css`, component styles in `src/design-system/components.css`, and shared React primitives in `src/design-system/index.jsx`.
+
+Brand gradients are rendered only through CSS semantic surfaces. `Recommended`, `Powered by ALMM/ARL`, selected states, chart emphasis, and current-price labels are guarded by `npm run check:design-system`; rasterized badge and gradient UI assets are not allowed.
 
 Frontend-only Ammora protocol interface, built with React and Vite.
 
@@ -28,3 +30,11 @@ npm run dev
 ```
 
 Run `npm run build` to create the production bundle and `node scripts/build_share_preview.mjs` to create the self-contained external preview.
+
+## Quality checks
+
+```bash
+npm run verify
+```
+
+This runs ESLint, design-system guardrails, and the production build.

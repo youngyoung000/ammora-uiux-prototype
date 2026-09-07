@@ -1,5 +1,7 @@
 # Ammora Product Design System
 
+Version 1.0 · September 2026
+
 This system is for Ammora’s functional product pages. It organizes the protocol around user jobs, keeps each screen focused on one primary task, and uses a quiet, readable visual language in both light and dark themes.
 
 ## Foundations
@@ -28,9 +30,41 @@ This system is for Ammora’s functional product pages. It organizes the protoco
 - Positive: `#0A9F75`
 - Negative: `#D85162`
 
-Primary calls to action and active navigation use a monochrome black/white key color. The Ammora symbol and high-emphasis chips such as `Recommended` and `Powered by ALMM/ARL` use the CSS `--brand-gradient` in both themes; raster chip assets are not used.
+Primary calls to action and active navigation use a monochrome black/white key color. The Ammora symbol and high-emphasis chips such as `Recommended` and `Powered by ALMM/ARL` use the semantic CSS surface `--surface-brand` in both themes. Raster badge, chip, gradient, or selected-state assets are prohibited.
 
-Light and dark modes use the same semantic roles (`canvas`, `surface`, `text`, `line`, `positive`, `negative`) rather than page-specific colors. Theme selection follows the system preference on first visit and is then remembered locally.
+Light and dark modes use the same semantic roles (`canvas`, `surface`, `text`, `line`, `positive`, `negative`) rather than page-specific colors. Light mode is the default on first visit. A user-selected theme is remembered locally when storage is available.
+
+## Source of truth
+
+| Layer | File | Responsibility |
+| --- | --- | --- |
+| Foundations | `src/design-system/tokens.css` | Color, type, spacing, radius, motion, theme, and semantic surface tokens |
+| Components | `src/design-system/components.css` | Shared visual behavior for product primitives |
+| React API | `src/design-system/index.jsx` | Reusable accessible component markup and variants |
+| Product layout | `src/styles.css` | Page-specific composition only; no raw gradient definitions |
+| Guardrail | `scripts/check_design_system.mjs` | Prevents raster gradient UI and unscoped gradient implementations |
+
+## Brand surface rules
+
+The gradient has one implementation path:
+
+```css
+.ds-brand-surface {
+  background-color: var(--brand-blue);
+  background-image: var(--surface-brand);
+}
+```
+
+Use the semantic surface according to intent:
+
+| Token or class | Use | Examples |
+| --- | --- | --- |
+| `.ds-brand-surface` / `--surface-brand` | Compact, high-emphasis brand identity; fill the complete border box with no transparent rim | `Recommended`, `Powered by ALMM`, `Powered by ARL`, current-price labels |
+| `--surface-brand-subtle` | Hover, focus, and selected backgrounds | Quick-select cards, strategy cards, fields, rows |
+| `--surface-brand-vertical` | Data visualization emphasis | In-range liquidity bars |
+| `--surface-neutral-gradient` | Neutral illustration stage only | Strategy graphic backgrounds |
+
+Do not use screenshots, PNGs, WebPs, SVG backgrounds, inline `style` gradients, or page-level `linear-gradient(...)` declarations to reproduce these surfaces. Illustration assets may contain only the illustration itself; their UI background, badge, state, stroke, and radius are rendered by CSS.
 
 ## Product architecture
 
@@ -44,7 +78,8 @@ Light and dark modes use the same semantic roles (`canvas`, `surface`, `text`, `
 ## Shared components
 
 - `Button`: primary, secondary and ghost variants; 40px or 46px height
-- `Badge`: brand, neutral and success status variants
+- `BrandSurface`: low-level semantic gradient surface for non-badge brand marks
+- `Badge`: brand, neutral and success status variants; `brand` automatically uses `BrandSurface`
 - `Panel`: the standard bordered product surface
 - `PageIntro`: shared page title, description, actions and contextual aside
 - `WorkspaceHeader`: compact task title, live state and primary actions for functional pages
@@ -76,10 +111,45 @@ Light and dark modes use the same semantic roles (`canvas`, `surface`, `text`, `
 - Pool Detail keeps `Liquidity` as the primary workspace: distribution preset → draggable price range → token amounts → review. Range handles support pointer drag, keyboard arrows and synchronized numeric inputs. Create Launch follows setup → token details → opening market → review, with curve settings kept under Advanced.
 - Product navigation and page state use hash routes so the same build works locally and in a shared artifact.
 
+## Component usage
+
+```jsx
+import { Badge, BrandSurface } from './design-system/index.jsx'
+
+<Badge>Powered by ALMM</Badge>
+<Badge size="sm">Recommended</Badge>
+<Badge tone="neutral">Preview</Badge>
+<Badge tone="success">Live</Badge>
+<BrandSurface className="current-price-label">Current price</BrandSurface>
+```
+
+- Use `Badge` for compact labels. Brand badges are borderless so the CSS gradient fills the complete pill; do not add transparent borders or a page-specific gradient class.
+- Use `BrandSurface` only when the semantic brand surface is not a badge.
+- Status meaning uses `neutral`, `success`, warning, or error colors—not the brand gradient.
+- Selected cards use a monochrome 1px border plus `--surface-brand-subtle`; they do not use the strong brand gradient.
+- Buttons remain monochrome. The brand gradient is not a primary CTA style.
+
+## Contribution guardrails
+
+Run the full UI verification before committing:
+
+```bash
+npm run verify
+```
+
+`npm run check:design-system` fails when:
+
+- a page stylesheet declares its own `linear-gradient(...)`;
+- a page uses raw `--brand-gradient` or `--interaction-gradient` instead of semantic surfaces;
+- a badge, chip, or gradient UI is implemented with a raster image;
+- the ALMM/ARL badges, Recommended badge, current-price label, or launch review mark leave the shared system.
+
+When adding a new branded surface, add or reuse a semantic token first, implement it in `components.css`, document its purpose here, and then consume the shared class or component.
+
 ## Responsive behavior
 
 - Desktop: compact single-row action navigation and task-focused data tables
 - Tablet: condensed network controls, wrapping toolbars and reduced table columns
 - Mobile: menu overlay, stacked page intros, task-critical list rows and full-width actions
 
-Source tokens live in `src/design-system/tokens.css`; reusable React primitives live in `src/design-system/index.jsx`.
+Tokens, component CSS, React primitives, and automated guardrails together form the design system. Page styles should only compose those primitives into product-specific layouts.

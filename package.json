@@ -7,7 +7,9 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "check:design-system": "node scripts/check_design_system.mjs",
+    "verify": "npm run lint && npm run check:design-system && npm run build"
   },
   "dependencies": {
     "@fontsource/manrope": "^5.2.7",

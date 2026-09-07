@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ArrowUpRight, CalendarClock, Check, ChevronDown, Coins, Rocket, Sparkles } from 'lucide-react'
-import { Badge, Button, PageTabs, Panel, QuickSelect, SearchField, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
+import { Badge, BrandSurface, Button, PageTabs, Panel, QuickSelect, SearchField, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
 import { FlowSteps, MiniTrend } from '../components/Common.jsx'
 
 const launches = [
@@ -59,7 +59,7 @@ export default function LaunchPage({ navigate }) {
       <aside className="launch-create-review">
         <Coins size={24} />
         <h2>Review launch</h2>
-        <div className="launch-review-token"><span>{tokenSymbol.slice(0, 1) || 'T'}</span><div><strong>{tokenSymbol || 'TOKEN'} / {quoteAsset}</strong><small>{tokenName || 'Unnamed token'}</small></div></div>
+        <div className="launch-review-token"><BrandSurface>{tokenSymbol.slice(0, 1) || 'T'}</BrandSurface><div><strong>{tokenSymbol || 'TOKEN'} / {quoteAsset}</strong><small>{tokenName || 'Unnamed token'}</small></div></div>
         <dl><div><dt>Setup</dt><dd>{quickRoute === 'first-buy' ? 'First buy' : quickRoute === 'scheduled' ? 'Scheduled' : 'Standard'}</dd></div><div><dt>Target</dt><dd>{Number(fundingTarget || 0).toLocaleString()} {quoteAsset}</dd></div>{quickRoute === 'first-buy' && <div><dt>Initial buy</dt><dd>{firstBuy || '0'} {quoteAsset}</dd></div>}<div><dt>Next state</dt><dd>Trading</dd></div></dl>
         <div className="launch-path"><span className="active">Create</span><i /><span>Trade</span><i /><span>Pool</span></div>
         <Button className="full-button">Review launch</Button>

@@ -9,6 +9,7 @@ import '@fontsource/nunito-sans/700.css'
 import '@fontsource/nunito-sans/800.css'
 import App from './App.jsx'
 import './design-system/tokens.css'
+import './design-system/components.css'
 import './styles.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
