@@ -17,14 +17,14 @@ const trades = [
   { type: 'Buy', wallet: '0x56D…A28', amount: '2.106 ETH', value: '8,092.79 GIWA', time: '2m ago' },
 ]
 
-export default function LaunchDetailPage({ symbol, navigate, connected, setConnected }) {
+export default function LaunchDetailPage({ symbol, navigate, connected, setConnected, watchedLaunches, toggleWatchedLaunch }) {
   const token = tokenProfiles[symbol] || tokenProfiles.ETH
   const displaySymbol = tokenProfiles[symbol] ? symbol : 'ETH'
   const [tradeMode, setTradeMode] = useState('Buy')
   const [amount, setAmount] = useState('5000')
   const [section, setSection] = useState('Transactions')
   const [dialog, setDialog] = useState(null)
-  const [watched, setWatched] = useState(false)
+  const watched = watchedLaunches.includes(displaySymbol)
   const unitPrice = token.unitPrice || 0.1284
   const estimate = tradeMode === 'Buy' ? (Number(amount || 0) / unitPrice).toLocaleString(undefined, { maximumFractionDigits: 4 }) : (Number(amount || 0) * unitPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })
   const selectTradeMode = (mode) => {
@@ -34,7 +34,7 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
 
   return <>
     <button className="back-link" onClick={() => navigate('launch')}><ArrowLeft size={17} />Back to launches</button>
-    <WorkspaceHeader title={`${displaySymbol} / ${token.quote}`} actions={<><Button variant="secondary" onClick={() => setWatched(!watched)} icon={<Star size={17} fill={watched ? 'currentColor' : 'none'} />}>{watched ? 'Watching' : 'Watch'}</Button><Button variant="secondary" onClick={() => setDialog('Share market link')} icon={<Share2 size={17} />}>Share</Button></>} />
+    <WorkspaceHeader title={`${displaySymbol} / ${token.quote}`} actions={<><Button variant="secondary" onClick={() => toggleWatchedLaunch(displaySymbol)} icon={<Star size={17} fill={watched ? 'currentColor' : 'none'} />}>{watched ? 'Watching' : 'Watch'}</Button><Button variant="secondary" onClick={() => setDialog('Share market link')} icon={<Share2 size={17} />}>Share</Button></>} />
 
     <div className="detail-metrics metrics-grid four">
       <Metric label="Current price" value={token.price} note={token.change} tone="positive" />

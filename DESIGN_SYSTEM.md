@@ -116,10 +116,10 @@ Do not use screenshots, PNGs, WebPs, SVG backgrounds, inline `style` gradients, 
 - Quick routes are used only in pool creation and token launch. Search, swap, portfolio and read-only catalogs use direct controls instead.
 - Quick routes change only safe defaults; every amount, setting and transaction remains editable and reviewable.
 - Transaction inputs use icon-led token buttons and a modal instead of native selects. Focus is applied to the field container, without an additional inner input border.
-- Launch discovery uses comparable market cards; selecting a token opens a Market Detail workspace with current state, next action, decision-useful chart/activity and Buy/Sell controls.
+- Launch discovery uses comparable market cards and a persistent Watching view; selecting a token opens a Market Detail workspace with current state, next action, decision-useful chart/activity and Buy/Sell controls.
 - Lifecycle state appears once in its decision context. Launch detail uses the market-progress card beside the Buy/Sell action instead of repeating the same state in the page header and a separate lifecycle bar.
 - Charts appear only where they support a decision: price on Market Detail, distribution/range on Pool Detail, and compact comparison signals in discovery.
-- Pool Detail keeps `Liquidity` as the primary workspace: distribution preset → draggable price range → token amounts → review. Range handles support pointer drag, keyboard arrows and synchronized numeric inputs. Create Launch follows setup → token details → opening market → review, with curve settings kept under Advanced.
+- Pool Detail keeps `Liquidity` as the primary workspace: distribution preset → draggable price range → token amounts → review. Range handles support pointer drag, keyboard arrows and synchronized numeric inputs. Create Pool previews respond to ALMM price spacing and ARL single/dual-sided funding choices. Create Launch follows setup → token details → opening market → review, with curve settings kept under Advanced.
 - Product navigation and page state use hash routes so the same build works locally and in a shared artifact.
 
 ## Component usage

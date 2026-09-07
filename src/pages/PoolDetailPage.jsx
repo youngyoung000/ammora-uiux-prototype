@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { ArrowLeft, Bell, Check, ChevronDown, HandCoins, Info, ListOrdered, Settings2, Star, Zap } from 'lucide-react'
+import { ArrowLeft, Bell, Bookmark, Check, ChevronDown, HandCoins, Info, ListOrdered, Settings2, Zap } from 'lucide-react'
 import { Badge, BrandSurface, Button, Metric, PageTabs, Panel, SegmentedControl, StatusDot, WorkspaceHeader } from '../design-system/index.jsx'
 import ActionDialog from '../components/ActionDialog.jsx'
 
@@ -37,7 +37,7 @@ export default function PoolDetailPage({ poolId, navigate, connected, setConnect
 
   return <>
     <button className="back-link" onClick={() => navigate('explore')}><ArrowLeft size={17} />Back to liquidity</button>
-    <WorkspaceHeader title={pair} meta={<><StatusDot>Pool live</StatusDot><Badge tone="neutral">Dynamic liquidity · ALMM</Badge></>} actions={<><Button variant="secondary" onClick={() => setDialog('Create pool alert')} icon={<Bell size={16} />}>Alert</Button><Button variant="secondary" onClick={() => setSaved(!saved)} icon={<Star size={16} fill={saved ? 'currentColor' : 'none'} />}>{saved ? 'Saved' : 'Save'}</Button><Button onClick={() => navigate('swap')}>Trade</Button></>} />
+    <WorkspaceHeader title={pair} meta={<><StatusDot>Pool live</StatusDot><Badge tone="neutral">Dynamic liquidity · ALMM</Badge></>} actions={<><Button variant="secondary" onClick={() => setDialog('Create pool alert')} icon={<Bell size={16} />}>Alert</Button><Button variant="secondary" onClick={() => setSaved(!saved)} icon={<Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />}>{saved ? 'Saved' : 'Save'}</Button><Button onClick={() => navigate('swap')}>Trade</Button></>} />
     <div className="metrics-grid four pool-metrics"><Metric label="Total liquidity" value="$12.84M" note="Available to trade" /><Metric label="24H volume" value="$28.43M" note="1,284 swaps" /><Metric label="24H fees" value="$42.8K" note="Pool total" /><Metric label="Observed APR" value="18.42%" note="Pool-wide estimate" tone="positive" /></div>
     <PageTabs items={['Overview', 'Liquidity', 'Activity', 'Positions', 'Manage pool']} value={tab} onChange={setTab} label="Pool details" />
     {tab === 'Liquidity' && <div className="pool-detail-grid">

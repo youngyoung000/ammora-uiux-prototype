@@ -44,6 +44,8 @@ with sync_playwright() as playwright:
     assert page.locator(".page-tabs button.active").inner_text() == "Top yield"
     assert_text(page, ".data-row:nth-child(2)", "GIWA / USDC")
     assert_text(page, ".liquidity-overview", "At least $0.38")
+    assert page.locator(".saved-filter .lucide-bookmark").count() == 1
+    assert page.locator('.table-actions button[aria-label="Save"] .lucide-bookmark').first.count() == 1
     page.locator(".data-row:not(.data-head)").first.hover()
     assert "gradient" in page.locator(".data-row:not(.data-head)").first.evaluate("el => getComputedStyle(el).backgroundImage")
     page.screenshot(path=OUTPUT / "explore-desktop.png", full_page=True)
@@ -111,6 +113,10 @@ with sync_playwright() as playwright:
     assert page.locator("#advanced-almm-flow").is_visible()
     assert page.locator("#advanced-almm-flow .asset-mark").count() >= 4
     assert page.locator("#advanced-almm-flow .creation-section").count() == 4
+    assert page.locator(".model-card__heading .ds-badge").count() == 2
+    assert page.locator("#advanced-almm-flow .creation-preview .ds-badge").count() == 0
+    assert page.locator("#advanced-almm-flow .creation-sequence").count() == 0
+    assert page.locator("#advanced-almm-flow .builder-input-suffix strong").evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
     for label in ["Powered by ALMM", "Powered by ARL"]:
         badge = page.get_by_text(label, exact=True)
         assert "linear-gradient" in badge.evaluate("el => getComputedStyle(el).backgroundImage")
@@ -121,8 +127,11 @@ with sync_playwright() as playwright:
     for label in ["Powered by ALMM", "Powered by ARL"]:
         assert "linear-gradient" in page.get_by_text(label, exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
     page.evaluate("document.documentElement.dataset.theme = 'light'")
+    balanced_bar_count = page.locator("#advanced-almm-flow .creation-chart i").count()
     page.get_by_role("button", name="Wide 0.50%").click()
     assert_text(page, "#advanced-almm-flow .creation-preview", "50 bps")
+    assert page.locator("#advanced-almm-flow .creation-chart").get_attribute("data-preview-variant") == "50 bps"
+    assert page.locator("#advanced-almm-flow .creation-chart i").count() < balanced_bar_count
     page.get_by_role("button", name="Review creation").click()
     assert_text(page, ".action-dialog", "Review ALMM creation")
     page.get_by_role("button", name="Prepare transactions").click()
@@ -131,6 +140,10 @@ with sync_playwright() as playwright:
     page.locator('.model-card').filter(has_text="Range liquidity").click()
     assert page.locator("#advanced-arl-flow").is_visible()
     assert page.locator("#advanced-arl-flow .creation-section").count() == 4
+    assert page.locator("#advanced-arl-flow .creation-preview .ds-badge").count() == 0
+    page.get_by_role("button", name="Single-sided Deposit ETH only").click()
+    assert page.locator("#advanced-arl-flow .creation-chart").get_attribute("data-preview-variant") == "Single-sided"
+    assert page.locator("#advanced-arl-flow .creation-chart i.is-muted").count() == 6
     page.get_by_role("button", name="Dynamic", exact=True).click()
     assert_text(page, "#advanced-arl-flow", "Maximum fee")
     page.evaluate("window.scrollTo(0, 0)")
@@ -166,6 +179,13 @@ with sync_playwright() as playwright:
     page.goto(f"{BASE_URL}launch", wait_until="networkidle")
     page.get_by_role("button", name="Active", exact=True).click()
     assert page.locator(".launch-market-card").count() == 3
+    page.get_by_role("button", name="Watch ETH", exact=True).click()
+    page.get_by_role("button", name="Watching", exact=True).click()
+    assert page.locator(".launch-market-card").count() == 1
+    assert_text(page, ".launch-market-card", "ETH")
+    page.reload(wait_until="networkidle")
+    assert page.locator(".page-tabs button.active").inner_text() == "Watching"
+    page.get_by_role("button", name="Markets", exact=True).click()
     page.screenshot(path=OUTPUT / "launch-discover-desktop.png", full_page=True)
     page.get_by_role("button", name="Create launch").first.click()
     assert page.locator(".quick-select__options > button").count() == 3
@@ -195,6 +215,7 @@ with sync_playwright() as playwright:
     page.locator(".launch-market-card").first.click()
     page.wait_for_url("**/#/launch/eth")
     assert_text(page, ".workspace-header h1", "ETH / GIWA")
+    assert page.get_by_role("button", name="Watching", exact=True).is_visible()
     assert page.locator(".market-state-bar").count() == 0
     assert "Trade now and follow progress toward permanent liquidity." not in page.locator("body").inner_text()
     assert page.locator(".workspace-header__meta").count() == 0
@@ -204,6 +225,8 @@ with sync_playwright() as playwright:
     assert "price-area-gradient" in page.locator(".chart-area").evaluate("el => getComputedStyle(el).fill")
     page.get_by_role("button", name="Creator tools").click()
     assert_text(page, ".creator-tools", "Transfer creator")
+    if page.locator(".token-trade-card").get_by_role("button", name="Connect wallet", exact=True).count():
+        page.locator(".token-trade-card").get_by_role("button", name="Connect wallet", exact=True).click()
     page.get_by_role("button", name="Sell").click()
     assert_text(page, ".trade-amount-field", "Sell ETH")
     assert page.get_by_role("button", name="Sell ETH", exact=True).is_visible()

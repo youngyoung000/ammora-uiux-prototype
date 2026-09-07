@@ -17,7 +17,7 @@ const getRoute = () => {
   const hashParts = window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
   const hashRoute = hashParts[0]
   const pathRoute = window.location.pathname.split('/').filter(Boolean).at(-1)
-  if (hashRoute === 'launch' && hashParts[1] === 'create') return 'launch'
+  if (hashRoute === 'launch' && (hashParts[1] === 'create' || hashParts[1] === 'watching')) return 'launch'
   if (hashRoute === 'launch' && hashParts[1]) return 'launch-detail'
   if (hashRoute === 'pool' && hashParts[1]) return 'pool-detail'
   if (hashRoute === 'currency' && hashParts[1]) return 'currency-detail'
@@ -37,6 +37,14 @@ const getInitialTheme = () => {
   }
   return 'light'
 }
+const getInitialWatchedLaunches = () => {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem('ammora-watched-launches') || '[]')
+    return Array.isArray(saved) ? saved : []
+  } catch {
+    return []
+  }
+}
 
 export default function App() {
   const [route, setRoute] = useState(getRoute)
@@ -45,6 +53,7 @@ export default function App() {
   const [entityId, setEntityId] = useState(getEntityId)
   const [connected, setConnected] = useState(false)
   const [theme, setTheme] = useState(getInitialTheme)
+  const [watchedLaunches, setWatchedLaunches] = useState(getInitialWatchedLaunches)
 
   useEffect(() => {
     const syncRoute = () => { setRoute(getRoute()); setLaunchToken(getLaunchToken()); setPoolId(getPoolId()); setEntityId(getEntityId()) }
@@ -62,6 +71,16 @@ export default function App() {
     }
   }, [theme])
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('ammora-watched-launches', JSON.stringify(watchedLaunches))
+    } catch {
+      // Watching remains available for the current session when storage is blocked.
+    }
+  }, [watchedLaunches])
+
+  const toggleWatchedLaunch = (symbol) => setWatchedLaunches((items) => items.includes(symbol) ? items.filter((item) => item !== symbol) : [...items, symbol])
+
   const navigate = (nextRoute) => {
     window.location.hash = `/${nextRoute}`
     setRoute(nextRoute.startsWith('launch/') && nextRoute !== 'launch/create' ? 'launch-detail' : nextRoute.startsWith('pool/') ? 'pool-detail' : nextRoute.startsWith('currency/') ? 'currency-detail' : nextRoute.startsWith('position/') ? 'position-detail' : nextRoute === 'launch/create' ? 'launch' : nextRoute)
@@ -76,8 +95,8 @@ export default function App() {
     swap: <SwapPage connected={connected} setConnected={setConnected} />,
     portfolio: <PortfolioPage connected={connected} setConnected={setConnected} navigate={navigate} />,
     create: <CreatePage navigate={navigate} />,
-    launch: <LaunchPage navigate={navigate} />,
-    'launch-detail': <LaunchDetailPage symbol={launchToken} navigate={navigate} connected={connected} setConnected={setConnected} />,
+    launch: <LaunchPage navigate={navigate} watchedLaunches={watchedLaunches} toggleWatchedLaunch={toggleWatchedLaunch} />,
+    'launch-detail': <LaunchDetailPage symbol={launchToken} navigate={navigate} connected={connected} setConnected={setConnected} watchedLaunches={watchedLaunches} toggleWatchedLaunch={toggleWatchedLaunch} />,
     'pool-detail': <PoolDetailPage poolId={poolId} navigate={navigate} connected={connected} setConnected={setConnected} />,
     currencies: <CurrenciesPage navigate={navigate} />,
     fees: <FeesPage connected={connected} setConnected={setConnected} navigate={navigate} />,

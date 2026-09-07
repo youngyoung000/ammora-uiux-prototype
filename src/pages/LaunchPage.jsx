@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ArrowUpRight, CalendarClock, Check, ChevronDown, Coins, ImagePlus, Rocket, Sparkles } from 'lucide-react'
+import { ArrowUpRight, CalendarClock, Check, ChevronDown, Coins, ImagePlus, Rocket, Sparkles, Star } from 'lucide-react'
 import { Badge, BrandSurface, Button, DropdownSelect, PageTabs, Panel, QuickSelect, SearchField, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
 import { FlowSteps, MiniTrend } from '../components/Common.jsx'
 import ActionDialog from '../components/ActionDialog.jsx'
@@ -12,10 +12,10 @@ const launches = [
   { token: 'ORBIT', name: 'Orbit Labs', quote: 'USDC', progress: 100, raised: '$184.2K', price: '$0.0186', change: '+5.24%', volume: '$126.8K', holders: '318', status: 'Ready', age: '36m', description: 'Funding complete. Ready to continue into permanent liquidity.', color: '#42c9e8', trend: [20, 22, 19, 24, 23, 27, 31, 30, 35, 38] },
 ]
 
-export default function LaunchPage({ navigate }) {
+export default function LaunchPage({ navigate, watchedLaunches, toggleWatchedLaunch }) {
   const [filter, setFilter] = useState('All')
   const [quickRoute, setQuickRoute] = useState('standard')
-  const [section, setSection] = useState(() => window.location.hash.includes('/launch/create') ? 'Create launch' : 'Markets')
+  const [section, setSection] = useState(() => window.location.hash.includes('/launch/create') ? 'Create launch' : window.location.hash.includes('/launch/watching') ? 'Watching' : 'Markets')
   const [query, setQuery] = useState('')
   const [tokenName, setTokenName] = useState('Ammora Ether')
   const [tokenSymbol, setTokenSymbol] = useState('AETH')
@@ -32,13 +32,13 @@ export default function LaunchPage({ navigate }) {
   }
   const selectSection = (nextSection) => {
     setSection(nextSection)
-    window.history.replaceState(null, '', nextSection === 'Create launch' ? '#/launch/create' : '#/launch')
+    window.history.replaceState(null, '', nextSection === 'Create launch' ? '#/launch/create' : nextSection === 'Watching' ? '#/launch/watching' : '#/launch')
     document.querySelector('.page-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-  const visible = launches.filter((item) => (filter === 'All' || item.status === filter) && `${item.token} ${item.name}`.toLowerCase().includes(query.toLowerCase()))
+  const visible = launches.filter((item) => (filter === 'All' || item.status === filter) && `${item.token} ${item.name}`.toLowerCase().includes(query.toLowerCase()) && (section !== 'Watching' || watchedLaunches.includes(item.token)))
   return <>
     <WorkspaceHeader title="Launch" description="Open a live market or create a new one." actions={<Button onClick={() => selectSection('Create launch')}>Create launch</Button>} />
-    <PageTabs items={['Markets', 'Create launch']} value={section} onChange={selectSection} label="Launch workspace" />
+    <PageTabs items={['Markets', 'Watching', 'Create launch']} value={section} onChange={selectSection} label="Launch workspace" />
     {section === 'Create launch' && <QuickSelect id="launch-quick" title="Choose a launch setup" description="These choices affect activation, first participation, and the path to permanent liquidity." value={quickRoute} onSelect={selectQuickRoute} options={[
       { id: 'standard', label: 'Standard launch', description: 'Token + ALC curve with reviewed defaults.', meta: 'Simple setup', recommended: true, icon: <Rocket size={20} /> },
       { id: 'first-buy', label: 'Launch with first buy', description: 'Prepare the initial purchase in one plan.', meta: 'Initial demand', icon: <Sparkles size={20} /> },
@@ -72,19 +72,19 @@ export default function LaunchPage({ navigate }) {
       </aside>
     </Panel>}
     {section === 'Create launch' && <details className="advanced-disclosure launch-lifecycle-disclosure" id="launch-lifecycle"><summary><span>How the launch progresses</span><ChevronDown size={17} /></summary><div className="advanced-content"><p className="disclosure-intro">Selected setup: {quickRoute === 'first-buy' ? 'Launch with first buy' : quickRoute === 'scheduled' ? 'Scheduled activation' : 'Standard launch'}.</p><FlowSteps items={[{ title: 'Create', copy: 'Set the token and opening market.' }, { title: 'Trade', copy: 'Buy and sell activity discovers a price.' }, { title: 'Ready', copy: 'The funding threshold is reached.' }, { title: 'Pool', copy: 'Liquidity continues in a permanent pool.' }]} /></div></details>}
-    {section === 'Markets' && <>
+    {(section === 'Markets' || section === 'Watching') && <>
       <Panel className="launch-discovery-panel" id="launch-list">
-        <div className="launch-discovery-head"><div><span className="section-eyebrow">Live markets</span><h2>Choose a market</h2><p>Open a market to trade or continue to its liquidity pool.</p></div></div>
+        <div className="launch-discovery-head"><div><h2>{section === 'Watching' ? 'Watching' : 'Choose a market'}</h2><p>{section === 'Watching' ? 'Markets you watch appear here.' : 'Open a market to trade or continue to its liquidity pool.'}</p></div></div>
         <div className="launch-discovery-toolbar"><SearchField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search token or creator" /><SegmentedControl items={['All', 'Active', 'Ready', 'Graduated']} value={filter} onChange={setFilter} label="Launch status" /></div>
         <div className="launch-market-grid">{visible.map((item) => <article className="launch-market-card" key={item.token} role="button" tabIndex="0" onClick={() => navigate(`launch/${item.token.toLowerCase()}`)} onKeyDown={(event) => event.key === 'Enter' && navigate(`launch/${item.token.toLowerCase()}`)}>
-          <div className="launch-card-head"><div className="launch-token"><span style={{ '--launch-color': item.color }}>{item.token.slice(0, 1)}</span><div><strong>{item.token}</strong><small>{item.name} · {item.age}</small></div></div><Badge tone={item.status === 'Graduated' ? 'success' : 'neutral'}>{item.status}</Badge></div>
+          <div className="launch-card-head"><div className="launch-token"><span style={{ '--launch-color': item.color }}>{item.token.slice(0, 1)}</span><div><strong>{item.token}</strong><small>{item.name} · {item.age}</small></div></div><div className="launch-card-actions"><Badge tone={item.status === 'Graduated' ? 'success' : 'neutral'}>{item.status}</Badge><button type="button" className={watchedLaunches.includes(item.token) ? 'watched' : ''} aria-label={`${watchedLaunches.includes(item.token) ? 'Unwatch' : 'Watch'} ${item.token}`} onClick={(event) => { event.stopPropagation(); toggleWatchedLaunch(item.token) }}><Star size={17} fill={watchedLaunches.includes(item.token) ? 'currentColor' : 'none'} /></button></div></div>
           <p>{item.description}</p>
           <div className="launch-price-row"><div><small>Price</small><strong>{item.price}</strong><span>{item.change}</span></div><MiniTrend values={item.trend} /></div>
           <div className="launch-card-stats"><span><small>24H volume</small><strong>{item.volume}</strong></span><span><small>Holders</small><strong>{item.holders}</strong></span><span><small>Raised</small><strong>{item.raised}</strong></span></div>
           <div className="launch-progress"><span><em>{item.status === 'Graduated' ? 'Permanent pool live' : item.status === 'Ready' ? 'Ready to graduate' : 'Graduation progress'}</em><strong>{item.progress}%</strong></span><i><b style={{ width: `${item.progress}%` }} /></i></div>
           <div className="launch-card-footer"><span>Paired with {item.quote}</span><strong>{item.status === 'Graduated' ? 'View pool' : item.status === 'Ready' ? 'Graduate' : 'Open market'} <ArrowUpRight size={16} /></strong></div>
         </article>)}</div>
-        {visible.length === 0 && <div className="empty-state"><strong>No launch markets found</strong><p>Try another search or start a new market.</p><Button variant="secondary" onClick={() => selectSection('Create launch')}>Create launch</Button></div>}
+        {visible.length === 0 && <div className="empty-state"><strong>{section === 'Watching' ? 'No watched markets yet' : 'No launch markets found'}</strong><p>{section === 'Watching' ? 'Watch a market to keep it in this list.' : 'Try another search or start a new market.'}</p><Button variant="secondary" onClick={() => selectSection(section === 'Watching' ? 'Markets' : 'Create launch')}>{section === 'Watching' ? 'Browse markets' : 'Create launch'}</Button></div>}
       </Panel>
     </>}
     {reviewOpen && <ActionDialog title="Review launch transactions" description="Token creation, launch creation, and an optional first buy are shown as separate wallet steps." rows={[["Token", `${tokenSymbol || 'TOKEN'} / ${quoteAsset}`], ["Setup", quickRoute === 'first-buy' ? 'Launch with first buy' : quickRoute === 'scheduled' ? 'Scheduled activation' : 'Standard launch'], ["Graduation target", `${Number(fundingTarget || 0).toLocaleString()} ${quoteAsset}`], ["Permanent liquidity", launchPreset.includes('Compounding') ? 'Compounding pool' : 'Concentrated pool']]} action="Prepare wallet transactions" onClose={() => setReviewOpen(false)} />}
