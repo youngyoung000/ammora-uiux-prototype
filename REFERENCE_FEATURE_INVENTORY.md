@@ -20,7 +20,7 @@ This prototype maps the publicly exposed product surface of the deployed Ammora 
 - Pool discovery: strategy, saved, time-window, and sort controls; pool detail navigation.
 - Aggregated swap: token selection, exact input, best/direct routing, slippage, deadline, approval separation, quote protection, and session history.
 - Pool detail: overview, range editing, add liquidity, activity categories, positions, alerts, save, limit orders, rewards, Zap, fee/operator controls, and protocol-fee claim review.
-- Pool creation: outcome quick-select, ALMM/ARL strategy comparison, token pair, opening price, bin step or range, immediate/scheduled activation, advanced verification, and transaction review.
+- Pool creation: independent Quick and Advanced journeys. Quick uses reviewed outcome defaults. Advanced ALMM includes token order, opening price, four price-spacing models, immediate/scheduled activation, fee details, and the explicit pool-deployment → opening-liquidity sequence. Advanced ARL includes dual/single-sided funding, amounts, exact price range, static/scheduled/dynamic fee schedules, fee collection, activation, and atomic pool + opening-position creation.
 - Launch discovery and creation: status filters, image and metadata fields, reviewed presets, first buy, scheduled activation, economics review, and lifecycle.
 - Launch market: price chart, buy/sell, holders, onchain market information, graduation, surplus claim, leftover withdrawal, and creator transfer.
 - Portfolio: ALMM/ARL positions, limit orders, activity, position performance/cash flow, add/remove/claim, merge, lock, delegate, rewards, saved pools, alerts, and creator workspace.

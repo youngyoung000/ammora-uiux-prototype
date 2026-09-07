@@ -87,6 +87,15 @@ export function TokenIcon({ symbol, color = '#5d8dff' }) {
   return <span className="token-icon" style={{ '--token-color': color }}>{symbol.slice(0, 1)}</span>
 }
 
+export function AssetMark({ symbol, size = 'md' }) {
+  const normalized = symbol.toUpperCase()
+  if (normalized === 'ETH' || normalized === 'WETH') return <span className={`asset-mark asset-mark--eth asset-mark--${size}`} aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3 8.5 16 16 20.3 23.5 16 16 3Z" fill="currentColor" opacity=".96"/><path d="M8.5 17.5 16 29l7.5-11.5L16 22Z" fill="currentColor" opacity=".7"/><path d="M16 3v17.3L8.5 16 16 3Z" fill="#fff" opacity=".72"/></svg></span>
+  if (normalized === 'WBTC' || normalized === 'BTC') return <span className={`asset-mark asset-mark--btc asset-mark--${size}`} aria-hidden="true">₿</span>
+  if (normalized === 'USDC') return <span className={`asset-mark asset-mark--usdc asset-mark--${size}`} aria-hidden="true"><b>$</b></span>
+  if (normalized === 'USDT') return <span className={`asset-mark asset-mark--usdt asset-mark--${size}`} aria-hidden="true">₮</span>
+  return <span className={`asset-mark asset-mark--giwa asset-mark--${size}`} aria-hidden="true">G</span>
+}
+
 export function StatusDot({ children, tone = 'positive' }) {
   return <span className={`status-label status-label--${tone}`}><i />{children}</span>
 }

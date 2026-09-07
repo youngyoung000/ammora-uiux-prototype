@@ -103,7 +103,7 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
           <div className="amount-presets">{(tradeMode === 'Buy' ? ['1,000', '5,000', '10,000', 'Max'] : ['0.1', '0.5', '1', 'Max']).map((item) => <button key={item} onClick={() => item !== 'Max' && setAmount(item.replace(',', ''))}>{item}</button>)}</div>
           <div className="trade-estimate"><span>You receive</span><strong>{estimate} {tradeMode === 'Buy' ? displaySymbol : token.quote}</strong></div>
           <dl className="trade-review"><div><dt>Price impact</dt><dd>0.18%</dd></div><div><dt>Minimum received</dt><dd>{(Number(estimate.replaceAll(',', '')) * .995).toLocaleString(undefined, { maximumFractionDigits: 2 })}</dd></div><div><dt>Trading fee</dt><dd>0.30%</dd></div></dl>
-          <Button className="full-button" onClick={() => connected ? setDialog(`Review ${tradeMode.toLowerCase()}`) : setConnected(true)}>{connected ? `Review ${tradeMode.toLowerCase()}` : 'Connect wallet'}</Button>
+          <Button className="full-button" onClick={() => !connected && setConnected(true)}>{connected ? `${tradeMode} ${displaySymbol}` : 'Connect wallet'}</Button>
           <p className="trade-notice"><Check size={15} />Quote, minimum output, fee, and token policy are checked again before signing.</p>
         </Panel>
       </aside>

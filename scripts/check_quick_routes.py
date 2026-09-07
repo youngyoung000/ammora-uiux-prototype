@@ -16,6 +16,10 @@ def assert_text(page, selector, expected):
 with sync_playwright() as playwright:
     browser = playwright.chromium.launch(headless=True)
     page = browser.new_page(viewport={"width": 1512, "height": 1050}, device_scale_factor=1)
+    page_errors = []
+    console_errors = []
+    page.on("pageerror", lambda error: page_errors.append(str(error)))
+    page.on("console", lambda message: console_errors.append(message.text) if message.type == "error" else None)
 
     checks = {
         "explore": 0,
@@ -81,24 +85,28 @@ with sync_playwright() as playwright:
     assert_text(page, "#swap-settings .advanced-content", "1 verified pool")
     assert_text(page, ".quote-summary", "USDC")
     page.get_by_role("button", name="Connect wallet", exact=True).click()
-    page.get_by_role("button", name="Review swap").click()
-    assert_text(page, ".action-dialog", "Minimum received")
-    page.get_by_role("button", name="Close").click()
+    assert page.get_by_role("button", name="Swap", exact=True).is_visible()
+    page.get_by_role("button", name="Swap", exact=True).click()
+    assert page.locator(".action-dialog").count() == 0
     page.screenshot(path=OUTPUT / "swap-desktop.png", full_page=True)
 
     page.goto(f"{BASE_URL}create", wait_until="networkidle")
     page.get_by_role("button", name="Scheduled pool").click()
     assert page.locator(".quick-select__arrow").count() == 0
     assert page.locator(".quick-select__options > button").evaluate_all("els => els.every(el => getComputedStyle(el).borderRadius !== '0px')")
-    assert page.locator(".ds-segmented button.active").last.inner_text() == "Schedule"
     assert_text(page, ".quick-select__options > button.selected", "Scheduled pool")
     assert "gradient" in page.locator(".quick-select__options > button.selected").evaluate("el => getComputedStyle(el).backgroundImage")
     assert "gradient" in page.get_by_text("Recommended", exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
     assert_text(page, ".config-preview aside", "Opening\nSchedule")
+    assert page.locator('[data-flow="quick"] .asset-mark').count() >= 2
+    assert page.locator("#advanced-almm-flow, #advanced-arl-flow").count() == 0
     page.screenshot(path=OUTPUT / "create-desktop.png", full_page=True)
     page.get_by_role("button", name="Advanced", exact=True).click()
     assert_text(page, "#create-models", "Select Strategy")
-    assert page.locator("#create-models .section-eyebrow, .config-preview .section-eyebrow, .config-preview .section-heading p").count() == 0
+    assert page.locator('[data-flow="quick"]').count() == 0
+    assert page.locator("#advanced-almm-flow").is_visible()
+    assert page.locator("#advanced-almm-flow .asset-mark").count() >= 4
+    assert page.locator("#advanced-almm-flow .creation-section").count() == 4
     for label in ["Powered by ALMM", "Powered by ARL"]:
         badge = page.get_by_text(label, exact=True)
         assert "linear-gradient" in badge.evaluate("el => getComputedStyle(el).backgroundImage")
@@ -109,15 +117,18 @@ with sync_playwright() as playwright:
     for label in ["Powered by ALMM", "Powered by ARL"]:
         assert "linear-gradient" in page.get_by_text(label, exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
     page.evaluate("document.documentElement.dataset.theme = 'light'")
-    assert page.locator("select").count() == 0
-    page.get_by_role("button", name="Select price step").click()
-    assert page.get_by_role("listbox", name="Select price step").is_visible()
-    page.get_by_role("option", name="50 bps Wider active bins").click()
-    page.get_by_role("button", name="Review transactions").click()
-    assert_text(page, ".action-dialog", "Review pool transactions")
-    page.get_by_role("button", name="Prepare wallet transactions").click()
+    page.get_by_role("button", name="Wide 0.50%").click()
+    assert_text(page, "#advanced-almm-flow .creation-preview", "50 bps")
+    page.get_by_role("button", name="Review creation").click()
+    assert_text(page, ".action-dialog", "Review ALMM creation")
+    page.get_by_role("button", name="Prepare transactions").click()
     assert_text(page, ".action-success", "Ready for wallet review")
     page.get_by_role("button", name="Done").click()
+    page.locator('.model-card').filter(has_text="Range liquidity").click()
+    assert page.locator("#advanced-arl-flow").is_visible()
+    assert page.locator("#advanced-arl-flow .creation-section").count() == 4
+    page.get_by_role("button", name="Dynamic", exact=True).click()
+    assert_text(page, "#advanced-arl-flow", "Maximum fee")
     page.evaluate("window.scrollTo(0, 0)")
     page.wait_for_timeout(200)
     page.screenshot(path=OUTPUT / "create-advanced-desktop.png", full_page=True)
@@ -189,6 +200,9 @@ with sync_playwright() as playwright:
     assert_text(page, ".creator-tools", "Transfer creator")
     page.get_by_role("button", name="Sell").click()
     assert_text(page, ".trade-amount-field", "Sell ETH")
+    assert page.get_by_role("button", name="Sell ETH", exact=True).is_visible()
+    page.get_by_role("button", name="Sell ETH", exact=True).click()
+    assert page.locator(".action-dialog").count() == 0
     page.screenshot(path=OUTPUT / "launch-token-desktop.png", full_page=True)
 
     page.get_by_role("button", name="Switch to dark mode").click()
@@ -223,6 +237,8 @@ with sync_playwright() as playwright:
     assert_text(mobile, ".token-trade-card", "Trade ETH")
     mobile.screenshot(path=OUTPUT / "launch-token-mobile.png", full_page=True)
 
+    assert not page_errors, page_errors
+    assert not console_errors, console_errors
     browser.close()
 
 print(OUTPUT)

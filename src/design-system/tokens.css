@@ -13,6 +13,7 @@
   --surface-brand-subtle: var(--interaction-gradient);
   --surface-brand-vertical: var(--brand-gradient-vertical);
   --surface-neutral-gradient: linear-gradient(145deg, var(--surface), var(--surface-soft));
+  --chart-grid: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
   --on-brand: #ffffff;
   --key-solid: #111318;
   --key-on-solid: #ffffff;

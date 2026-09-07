@@ -72,6 +72,17 @@
 .status-label i { width: 8px; height: 8px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 0 4px #e7f8f2; }
 .status-label--warning i { background: var(--warning); }
 
+.asset-mark { width: 34px; height: 34px; border-radius: 50%; display: inline-grid; flex: 0 0 auto; place-items: center; color: #fff; font: 800 15px var(--font-display); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+.asset-mark svg { width: 23px; height: 23px; }
+.asset-mark--sm { width: 28px; height: 28px; font-size: 12px; }
+.asset-mark--lg { width: 42px; height: 42px; font-size: 17px; }
+.asset-mark--eth { color: #fff; background: #627eea; }
+.asset-mark--btc { background: #f7931a; }
+.asset-mark--usdc { background: #2775ca; }
+.asset-mark--usdc b { width: 21px; height: 21px; border: 2px solid currentColor; border-radius: 50%; display: grid; place-items: center; font-size: 12px; line-height: 1; }
+.asset-mark--usdt { background: #26a17b; }
+.asset-mark--giwa { background: var(--surface-brand); }
+
 .ds-field { height: 44px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; color: var(--ink-muted); background: var(--surface); }
 .ds-field input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink-strong); font-size: 15px; font-weight: 600; }
 .ds-field input::placeholder { color: var(--placeholder); transition: color var(--motion-base), opacity var(--motion-base); }

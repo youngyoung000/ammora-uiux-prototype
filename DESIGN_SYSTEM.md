@@ -60,6 +60,7 @@ Use the semantic surface according to intent:
 | Token or class | Use | Examples |
 | --- | --- | --- |
 | `.ds-brand-surface` / `--surface-brand` | Compact, high-emphasis brand identity; fill the complete border box with no transparent rim | `Recommended`, `Powered by ALMM`, `Powered by ARL`, current-price labels |
+| `.asset-mark` / `AssetMark` | Persistent asset recognition before a token label in selectors and pair summaries | ETH, USDC, GIWA, WBTC, USDT |
 
 ### Dropdowns and uploads
 

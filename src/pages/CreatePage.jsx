@@ -1,60 +1,130 @@
 import React, { useState } from 'react'
-import { ArrowLeft, CalendarClock, ChevronDown, Coins, Gauge, ShieldCheck, Waves } from 'lucide-react'
-import { Badge, Button, DropdownSelect, PageTabs, Panel, QuickSelect, SectionHeading, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
-import { FlowSteps } from '../components/Common.jsx'
+import { ArrowLeft, CalendarClock, Check, ChevronDown, Gauge, ShieldCheck, Waves } from 'lucide-react'
+import { AssetMark, Badge, Button, DropdownSelect, PageTabs, Panel, QuickSelect, SectionHeading, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
 import ActionDialog from '../components/ActionDialog.jsx'
 
+const tokenOptions = ['ETH', 'USDC', 'GIWA', 'WBTC', 'USDT']
+const spacingOptions = [
+  { value: '10 bps', label: 'Tight', note: '0.10%' },
+  { value: '25 bps', label: 'Balanced', note: '0.25%', recommended: true },
+  { value: '50 bps', label: 'Wide', note: '0.50%' },
+  { value: '100 bps', label: 'Very wide', note: '1.00%' },
+]
+
 export default function CreatePage({ navigate }) {
-  const [mode, setMode] = useState('ALMM')
-  const [start, setStart] = useState('Start now')
-  const [preset, setPreset] = useState('stable')
   const [builder, setBuilder] = useState('Quick setup')
-  const [firstToken, setFirstToken] = useState('ETH')
-  const [secondToken, setSecondToken] = useState('USDC')
-  const [binStep, setBinStep] = useState('25 bps')
-  const [range, setRange] = useState('±20%')
-  const [reviewOpen, setReviewOpen] = useState(false)
-  const selectPreset = (nextPreset) => {
-    setPreset(nextPreset)
-    if (nextPreset === 'stable') { setMode('ALMM'); setStart('Start now') }
-    if (nextPreset === 'volatile') { setMode('ARL'); setStart('Start now') }
-    if (nextPreset === 'scheduled') { setMode('ALMM'); setStart('Schedule') }
-    document.getElementById('create-models')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-  const selectBuilder = (nextBuilder) => {
-    setBuilder(nextBuilder)
-    document.getElementById(nextBuilder === 'Quick setup' ? 'create-quick' : 'create-models')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
   return <>
     <button className="back-link create-back-link" onClick={() => navigate('explore')}><ArrowLeft size={17} />Back to liquidity</button>
     <WorkspaceHeader title="Create pool" />
-    <PageTabs items={['Quick setup', 'Advanced']} value={builder} onChange={selectBuilder} label="Pool setup" />
-    {builder === 'Quick setup' && <QuickSelect id="create-quick" title="Select pool type" value={preset} onSelect={selectPreset} options={[
-      { id: 'stable', label: 'Stable pair', description: 'Stay close to the current price.', meta: 'Low volatility', recommended: true, icon: <ShieldCheck size={20} /> },
-      { id: 'volatile', label: 'Volatile pair', description: 'Cover a wider custom price range.', meta: 'Focused range', icon: <Waves size={20} /> },
-      { id: 'scheduled', label: 'Scheduled pool', description: 'Fund now and open trading later.', meta: 'Timed opening', icon: <CalendarClock size={20} /> },
-    ]} />}
-    {builder === 'Advanced' && <section className="page-section compact-section" id="create-models">
-      <SectionHeading title="Select Strategy" />
-      <div className="model-grid">
-        <Panel className={mode === 'ALMM' ? 'model-card selected' : 'model-card'} role="button" tabIndex="0" aria-pressed={mode === 'ALMM'} onClick={() => setMode('ALMM')} onKeyDown={(event) => event.key === 'Enter' && setMode('ALMM')}><div className="model-visual strategy-image strategy-image--almm"><img src="/strategy-almm-optimized.webp" alt="Dynamic liquidity distribution" /></div><Badge>Powered by ALMM</Badge><h3>Dynamic liquidity</h3><p>Keep liquidity close to active prices with a distribution that can follow the market.</p><ul><li>Best for active markets</li><li>Dynamic fees</li><li>Guided presets</li></ul></Panel>
-        <Panel className={mode === 'ARL' ? 'model-card selected' : 'model-card'} role="button" tabIndex="0" aria-pressed={mode === 'ARL'} onClick={() => setMode('ARL')} onKeyDown={(event) => event.key === 'Enter' && setMode('ARL')}><div className="model-visual strategy-image strategy-image--arl"><img src="/strategy-arl-optimized.webp" alt="Range liquidity distribution" /></div><Badge>Powered by ARL</Badge><h3>Range liquidity</h3><p>Choose the exact price range where your capital should earn trading fees.</p><ul><li>Custom price range</li><li>Single or dual-sided</li><li>Position NFT</li></ul></Panel>
-      </div>
-    </section>}
-    <Panel className="config-preview">
+    <PageTabs items={['Quick setup', 'Advanced']} value={builder} onChange={setBuilder} label="Pool setup" />
+    {builder === 'Quick setup' ? <QuickPoolFlow /> : <AdvancedPoolFlow />}
+  </>
+}
+
+function QuickPoolFlow() {
+  const [preset, setPreset] = useState('stable')
+  const [firstToken, setFirstToken] = useState('ETH')
+  const [secondToken, setSecondToken] = useState('USDC')
+  const [openingPrice, setOpeningPrice] = useState('4,284.22')
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const mode = preset === 'volatile' ? 'ARL' : 'ALMM'
+  const start = preset === 'scheduled' ? 'Schedule' : 'Start now'
+  return <div className="create-flow" data-flow="quick">
+    <QuickSelect id="create-quick" title="Select pool type" value={preset} onSelect={setPreset} options={[
+      { id: 'stable', label: 'Stable pair', description: 'Reviewed defaults for closely priced assets.', meta: 'Low volatility', recommended: true, icon: <ShieldCheck size={20} /> },
+      { id: 'volatile', label: 'Volatile pair', description: 'A wider range for assets that move independently.', meta: 'Focused range', icon: <Waves size={20} /> },
+      { id: 'scheduled', label: 'Scheduled pool', description: 'Fund now and open trading at a chosen time.', meta: 'Timed opening', icon: <CalendarClock size={20} /> },
+    ]} />
+    <Panel className="config-preview quick-config-preview">
       <div>
         <SectionHeading title="Select assets" />
-        <div className="pair-inputs"><div className="pair-select"><Coins size={20} /><DropdownSelect label="Select first token" value={firstToken} onChange={setFirstToken} options={['ETH', 'GIWA', 'WBTC']} /></div><span className="pair-divider">+</span><div className="pair-select"><Coins size={20} /><DropdownSelect label="Select second token" value={secondToken} onChange={setSecondToken} options={['USDC', 'GIWA', 'ETH']} /></div></div>
-        <SegmentedControl items={['Start now', 'Schedule']} value={start} onChange={setStart} label="Opening time" />
+        <AssetPairSelector first={firstToken} second={secondToken} onFirst={setFirstToken} onSecond={setSecondToken} />
         <div className="pool-config-fields">
-          <label className="builder-field"><span>Opening price</span><div className="builder-input-suffix"><input defaultValue="4,284.22" /><strong>{secondToken}</strong></div></label>
-          {mode === 'ALMM' ? <div className="builder-field"><span>Price step</span><DropdownSelect label="Select price step" value={binStep} onChange={setBinStep} options={[{ value: '10 bps', label: '10 bps', description: 'Tighter price spacing' }, { value: '25 bps', label: '25 bps', description: 'Balanced default' }, { value: '50 bps', label: '50 bps', description: 'Wider active bins' }, { value: '100 bps', label: '100 bps', description: 'High volatility' }]} /></div> : <div className="builder-field"><span>Price range</span><DropdownSelect label="Select price range" value={range} onChange={setRange} options={['±20%', '±50%', '±80%', 'Custom']} /></div>}
-          {start === 'Schedule' && <label className="builder-field"><span>Trading opens</span><input type="datetime-local" defaultValue="2026-09-12T10:00" /></label>}
+          <Field label="Opening price"><div className="builder-input-suffix"><input value={openingPrice} onChange={(event) => setOpeningPrice(event.target.value)} /><strong>{secondToken}</strong></div></Field>
+          <Field label={mode === 'ALMM' ? 'Price spacing' : 'Price range'}><DropdownSelect label="Select guided configuration" value={mode === 'ALMM' ? 'Balanced · 0.25%' : 'Wide · ±50%'} onChange={() => {}} options={mode === 'ALMM' ? ['Balanced · 0.25%'] : ['Wide · ±50%']} /></Field>
+          {start === 'Schedule' && <Field label="Trading opens"><input type="datetime-local" defaultValue="2026-09-12T10:00" /></Field>}
         </div>
       </div>
-      <aside><Gauge size={25} /><h3>Review setup</h3><dl><div><dt>Pair</dt><dd>{firstToken} / {secondToken}</dd></div><div><dt>Strategy</dt><dd>{mode === 'ALMM' ? 'Dynamic' : 'Range'}</dd></div><div><dt>{mode === 'ALMM' ? 'Price step' : 'Price range'}</dt><dd>{mode === 'ALMM' ? binStep : range}</dd></div><div><dt>Opening</dt><dd>{start}</dd></div></dl><Button className="full-button" onClick={() => setReviewOpen(true)}>Review transactions</Button></aside>
+      <ReviewAside title="Quick setup" rows={[["Pair", `${firstToken} / ${secondToken}`], ["Strategy", mode === 'ALMM' ? 'Dynamic liquidity' : 'Range liquidity'], ["Opening", start], ["Configuration", 'Reviewed defaults']]} onReview={() => setReviewOpen(true)} />
     </Panel>
-    <details className="advanced-disclosure create-disclosure"><summary><span><ShieldCheck size={17} />Advanced checks and protocol details</span><ChevronDown size={17} /></summary><div className="advanced-content"><FlowSteps items={[{ title: 'Pair', copy: 'Token order and safety policy are checked.' }, { title: 'Strategy', copy: `Powered by ${mode}. Range and fee rules are verified.` }, { title: 'Funding', copy: 'Amounts, approvals, and minimum shares are reviewed.' }, { title: 'Create', copy: 'Exact transactions are shown before signing.' }]} /></div></details>
-    {reviewOpen && <ActionDialog title="Review pool transactions" description={mode === 'ALMM' ? 'The pool is created first, then the opening position is funded.' : 'The pool and opening position are prepared as one verified plan.'} rows={[["Pair", `${firstToken} / ${secondToken}`], ["Strategy", `${mode === 'ALMM' ? 'Dynamic liquidity · ALMM' : 'Range liquidity · ARL'}`], ["Opening", start], ["Approval", "Prepared separately"]]} action="Prepare wallet transactions" onClose={() => setReviewOpen(false)} />}
-  </>
+    <p className="quick-flow-note"><Check size={16} />Quick setup uses reviewed defaults. Open Advanced to control price spacing, funding, fees, and activation independently.</p>
+    {reviewOpen && <ActionDialog title="Review quick pool setup" description="The recommended configuration is expanded before your wallet opens." rows={[["Pair", `${firstToken} / ${secondToken}`], ["Strategy", mode], ["Opening price", `${openingPrice} ${secondToken}`], ["Opening", start]]} action="Prepare pool" onClose={() => setReviewOpen(false)} />}
+  </div>
+}
+
+function AdvancedPoolFlow() {
+  const [mode, setMode] = useState('ALMM')
+  return <div className="create-flow create-flow--advanced" data-flow="advanced">
+    <section className="page-section compact-section" id="create-models">
+      <SectionHeading title="Select Strategy" />
+      <div className="model-grid">
+        <StrategyCard mode="ALMM" selected={mode === 'ALMM'} onSelect={setMode} image="/strategy-almm-optimized.webp" title="Dynamic liquidity" description="Distribute capital across discrete price bins with adaptive fees." features={['Price spacing', 'Distribution presets', 'Two-stage creation']} />
+        <StrategyCard mode="ARL" selected={mode === 'ARL'} onSelect={setMode} image="/strategy-arl-optimized.webp" title="Range liquidity" description="Concentrate liquidity inside an exact minimum and maximum price." features={['Dual or single-sided', 'Fee schedule', 'Opening position']} />
+      </div>
+    </section>
+    {mode === 'ALMM' ? <AdvancedALMMFlow /> : <AdvancedARLFlow />}
+  </div>
+}
+
+function StrategyCard({ mode, selected, onSelect, image, title, description, features }) {
+  return <Panel className={selected ? 'model-card selected' : 'model-card'} role="button" tabIndex="0" aria-pressed={selected} onClick={() => onSelect(mode)} onKeyDown={(event) => event.key === 'Enter' && onSelect(mode)}>
+    <div className={`model-visual strategy-image strategy-image--${mode.toLowerCase()}`}><img src={image} alt={`${title} distribution`} /></div>
+    <Badge>Powered by {mode}</Badge><h3>{title}</h3><p>{description}</p><ul>{features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+  </Panel>
+}
+
+function AdvancedALMMFlow() {
+  const [firstToken, setFirstToken] = useState('ETH')
+  const [secondToken, setSecondToken] = useState('USDC')
+  const [openingPrice, setOpeningPrice] = useState('4,284.22')
+  const [spacing, setSpacing] = useState('25 bps')
+  const [activation, setActivation] = useState('Start now')
+  const [reviewOpen, setReviewOpen] = useState(false)
+  return <Panel className="advanced-creation-workspace" id="advanced-almm-flow">
+    <div className="creation-form">
+      <CreationSection step="01" title="Token pair"><AssetPairSelector first={firstToken} second={secondToken} onFirst={setFirstToken} onSecond={setSecondToken} /></CreationSection>
+      <CreationSection step="02" title="Opening price"><Field label="Initial price"><div className="builder-input-suffix"><input value={openingPrice} onChange={(event) => setOpeningPrice(event.target.value)} /><strong>{secondToken} per {firstToken}</strong></div></Field></CreationSection>
+      <CreationSection step="03" title="Price spacing"><ChoiceGrid className="spacing-grid" options={spacingOptions} value={spacing} onChange={setSpacing} /></CreationSection>
+      <CreationSection step="04" title="Pool activation"><SegmentedControl items={['Start now', 'Schedule']} value={activation} onChange={setActivation} label="Pool activation" />{activation === 'Schedule' && <Field label="Trading opens"><input type="datetime-local" defaultValue="2026-09-12T10:00" /></Field>}</CreationSection>
+      <details className="advanced-disclosure embedded-advanced"><summary><span>Fee and preset details</span><ChevronDown size={17} /></summary><div className="advanced-content"><dl><div><dt>Reviewed preset</dt><dd>Balanced bins</dd></div><div><dt>Base fee</dt><dd>0.05%</dd></div><div><dt>Dynamic fee</dt><dd>Enabled</dd></div><div><dt>Composition fee</dt><dd>Applied when required</dd></div></dl></div></details>
+    </div>
+    <CreationPreview mode="ALMM" pair={`${firstToken} / ${secondToken}`} openingPrice={openingPrice} detail={`Balanced · ${spacing.replace(' bps','')} bps`} activation={activation} onReview={() => setReviewOpen(true)} />
+    {reviewOpen && <ActionDialog title="Review ALMM creation" description="ALMM creation has two explicit stages: deploy the pool, then fund the opening position." rows={[["Pair", `${firstToken} / ${secondToken}`], ["Opening price", openingPrice], ["Price spacing", spacing], ["Transactions", "Pool deployment + opening liquidity"]]} action="Prepare transactions" onClose={() => setReviewOpen(false)} />}
+  </Panel>
+}
+
+function AdvancedARLFlow() {
+  const [firstToken, setFirstToken] = useState('ETH')
+  const [secondToken, setSecondToken] = useState('USDC')
+  const [funding, setFunding] = useState('Dual-sided')
+  const [feeSchedule, setFeeSchedule] = useState('Static')
+  const [feeCollection, setFeeCollection] = useState('Base + Quote')
+  const [activation, setActivation] = useState('Start now')
+  const [reviewOpen, setReviewOpen] = useState(false)
+  return <Panel className="advanced-creation-workspace" id="advanced-arl-flow">
+    <div className="creation-form">
+      <CreationSection step="01" title="Funding model"><ChoiceGrid options={[{ value: 'Dual-sided', label: 'Dual-sided', note: 'Deposit both tokens', recommended: true }, { value: 'Single-sided', label: 'Single-sided', note: `Deposit ${firstToken} only` }]} value={funding} onChange={setFunding} /></CreationSection>
+      <CreationSection step="02" title="Token pair and opening position"><AssetPairSelector first={firstToken} second={secondToken} onFirst={setFirstToken} onSecond={setSecondToken} /><div className="form-grid two"><Field label="Initial price"><div className="builder-input-suffix"><input defaultValue="4,284.22" /><strong>{secondToken}</strong></div></Field><Field label={`Maximum ${firstToken}`}><input defaultValue="1" /></Field>{funding === 'Dual-sided' && <Field label={`Maximum ${secondToken}`}><input defaultValue="4,284.22" /></Field>}<Field label="Min price"><input defaultValue="3,420" /></Field><Field label="Max price"><input defaultValue="5,140" /></Field></div></CreationSection>
+      <CreationSection step="03" title="Trading fee"><div className="section-control-row"><Field label="Base fee (bps)"><input defaultValue="30" /></Field><SegmentedControl items={['Static', 'Scheduled', 'Dynamic']} value={feeSchedule} onChange={setFeeSchedule} label="Fee schedule" /></div>{feeSchedule === 'Scheduled' && <div className="form-grid three"><Field label="Initial fee"><input defaultValue="100" /></Field><Field label="Final fee"><input defaultValue="30" /></Field><Field label="Reduction duration"><input defaultValue="24 hours" /></Field></div>}{feeSchedule === 'Dynamic' && <div className="form-grid three"><Field label="Maximum fee"><input defaultValue="300" /></Field><Field label="Filter period"><input defaultValue="30 sec" /></Field><Field label="Decay period"><input defaultValue="10 min" /></Field></div>}</CreationSection>
+      <CreationSection step="04" title="Fee collection and activation"><div className="section-control-row"><SegmentedControl items={['Base + Quote', 'Quote only']} value={feeCollection} onChange={setFeeCollection} label="Fee collection" /><SegmentedControl items={['Start now', 'Schedule']} value={activation} onChange={setActivation} label="Pool activation" /></div>{activation === 'Schedule' && <Field label="Trading opens"><input type="datetime-local" defaultValue="2026-09-12T10:00" /></Field>}</CreationSection>
+      <details className="advanced-disclosure embedded-advanced"><summary><span>Factory, manager, and position details</span><ChevronDown size={17} /></summary><div className="advanced-content"><dl><div><dt>Creation model</dt><dd>Pool + opening position</dd></div><div><dt>Position type</dt><dd>Concentrated NFT</dd></div><div><dt>Fee collection</dt><dd>{feeCollection}</dd></div><div><dt>Address derivation</dt><dd>Deterministic</dd></div></dl></div></details>
+    </div>
+    <CreationPreview mode="ARL" pair={`${firstToken} / ${secondToken}`} openingPrice="4,284.22" detail={`${funding} · ${feeSchedule} fee`} activation={activation} onReview={() => setReviewOpen(true)} />
+    {reviewOpen && <ActionDialog title="Review ARL creation" description="The pool and opening position are prepared as one verified creation plan." rows={[["Pair", `${firstToken} / ${secondToken}`], ["Funding", funding], ["Fee schedule", feeSchedule], ["Fee collection", feeCollection], ["Transaction", "Pool + opening position"]]} action="Prepare transaction" onClose={() => setReviewOpen(false)} />}
+  </Panel>
+}
+
+function AssetPairSelector({ first, second, onFirst, onSecond }) {
+  return <div className="pair-inputs asset-pair-inputs"><div className="pair-select"><AssetMark symbol={first} /><DropdownSelect label="Select base token" value={first} onChange={onFirst} options={tokenOptions.filter((token) => token !== second)} /></div><span className="pair-divider">+</span><div className="pair-select"><AssetMark symbol={second} /><DropdownSelect label="Select quote token" value={second} onChange={onSecond} options={tokenOptions.filter((token) => token !== first)} /></div></div>
+}
+
+function CreationSection({ step, title, children }) { return <section className="creation-section"><header><span>{step}</span><h2>{title}</h2></header>{children}</section> }
+function Field({ label, children }) { return <label className="builder-field"><span>{label}</span>{children}</label> }
+function ChoiceGrid({ options, value, onChange, className = '' }) { return <div className={`choice-grid ${className}`}>{options.map((option) => <button key={option.value} className={value === option.value ? 'selected' : ''} onClick={() => onChange(option.value)}><span>{option.label}</span><small>{option.note}</small>{option.recommended && <Badge tone="success" size="sm">Recommended</Badge>}</button>)}</div> }
+
+function ReviewAside({ title, rows, onReview }) { return <aside><Gauge size={25} /><h3>{title}</h3><dl>{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><Button className="full-button" onClick={onReview}>Review setup</Button></aside> }
+
+function CreationPreview({ mode, pair, openingPrice, detail, activation, onReview }) {
+  const bars = mode === 'ALMM' ? [22,35,49,65,82,100,82,65,49,35,22] : [38,48,61,76,92,100,92,76,61,48,38]
+  return <aside className="creation-preview"><div className="preview-heading"><div><span>Pool preview</span><strong>{mode === 'ALMM' ? 'Dynamic liquidity distribution' : 'Concentrated price range'}</strong></div><Badge>{mode}</Badge></div><div className="preview-pair"><span className="preview-token-stack"><AssetMark symbol={pair.split(' / ')[0]} /><AssetMark symbol={pair.split(' / ')[1]} /></span><div><strong>{pair}</strong><small>{mode === 'ALMM' ? 'Discrete price bins' : 'Opening range position'}</small></div></div><div className={`creation-chart creation-chart--${mode.toLowerCase()}`}>{bars.map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}<b>OPEN</b></div><dl><div><dt>Opening price</dt><dd>{openingPrice}</dd></div><div><dt>{mode === 'ALMM' ? 'Price spacing' : 'Funding and fee'}</dt><dd>{detail}</dd></div><div><dt>Trading starts</dt><dd>{activation === 'Start now' ? 'After creation' : 'Scheduled'}</dd></div></dl><div className="creation-sequence"><strong>Creation sequence</strong>{mode === 'ALMM' ? <><span>1 · Pool deployment</span><span>2 · Opening liquidity</span></> : <span>1 · Pool + opening position</span>}</div><Button className="full-button" onClick={onReview}>Review creation</Button></aside>
 }
