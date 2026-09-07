@@ -13,6 +13,16 @@ def assert_text(page, selector, expected):
     assert expected in value, f"Expected {expected!r} in {selector}, got {value!r}"
 
 
+def assert_no_page_overflow(page, label):
+    sizes = page.evaluate("""() => ({
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        bodyScrollWidth: document.body.scrollWidth,
+    })""")
+    assert sizes["scrollWidth"] <= sizes["clientWidth"] + 1, f"{label}: document overflow {sizes}"
+    assert sizes["bodyScrollWidth"] <= sizes["clientWidth"] + 1, f"{label}: body overflow {sizes}"
+
+
 with sync_playwright() as playwright:
     browser = playwright.chromium.launch(headless=True)
     page = browser.new_page(viewport={"width": 1512, "height": 1050}, device_scale_factor=1)
@@ -314,6 +324,30 @@ with sync_playwright() as playwright:
     assert mobile.locator(".header-main").evaluate("el => getComputedStyle(el).paddingLeft") == "8px"
     assert mobile.locator(".quick-select__options > button").count() == 3
     mobile.screenshot(path=OUTPUT / "create-mobile.png", full_page=True)
+    assert_no_page_overflow(mobile, "390/create-quick")
+
+    mobile.get_by_role("button", name="Advanced", exact=True).click()
+    mobile_visual = mobile.locator(".model-visual").first.bounding_box()
+    mobile_image = mobile.locator(".strategy-image img").first.bounding_box()
+    assert mobile_visual and mobile_image
+    assert 114 <= mobile_visual["height"] <= 116
+    assert 229 <= mobile_image["height"] <= 231
+    assert abs((mobile_visual["y"] + mobile_visual["height"] / 2) - (mobile_image["y"] + mobile_image["height"] / 2)) < 1
+    mobile.screenshot(path=OUTPUT / "create-advanced-mobile.png", full_page=True)
+    mobile.locator(".model-card").filter(has_text="Range liquidity").click()
+    assert mobile.locator("#advanced-arl-flow .funding-grid").evaluate("el => getComputedStyle(el).gridTemplateColumns.split(' ').length") == 1
+    funding_title = mobile.locator("#advanced-arl-flow .funding-grid button").filter(has_text="Dual-sided").locator(".choice-card-title")
+    funding_label = funding_title.locator("span").first.bounding_box()
+    funding_badge = funding_title.locator(".ds-badge").bounding_box()
+    assert funding_label and funding_badge
+    assert funding_badge["x"] >= funding_label["x"] + funding_label["width"]
+    mobile.get_by_role("button", name="Schedule", exact=True).last.click()
+    date_field = mobile.locator("#advanced-arl-flow input[type='datetime-local']")
+    date_box = date_field.bounding_box()
+    date_parent = date_field.locator("xpath=..").bounding_box()
+    assert date_box and date_parent and date_box["x"] >= date_parent["x"] and date_box["x"] + date_box["width"] <= date_parent["x"] + date_parent["width"] + 1
+    assert_no_page_overflow(mobile, "390/create-advanced-arl")
+    mobile.screenshot(path=OUTPUT / "create-advanced-arl-mobile.png", full_page=True)
 
     mobile.goto(f"{BASE_URL}swap", wait_until="networkidle")
     mobile.get_by_role("button", name="Select you pay token").click()
@@ -321,6 +355,10 @@ with sync_playwright() as playwright:
     assert modal_box and modal_box["x"] < 1 and modal_box["y"] < 1
     assert modal_box["width"] >= 389 and modal_box["height"] >= 843
     assert mobile.locator(".token-modal-backdrop").evaluate("el => getComputedStyle(el).backdropFilter") == "none"
+    shortcut_box = mobile.locator(".token-shortcuts button").first.bounding_box()
+    tokens_label_box = mobile.locator(".token-list-label").bounding_box()
+    assert shortcut_box and tokens_label_box and shortcut_box["height"] >= 95
+    assert shortcut_box["y"] + shortcut_box["height"] <= tokens_label_box["y"]
     mobile.screenshot(path=OUTPUT / "swap-token-mobile.png", full_page=False)
     mobile.get_by_role("button", name="Close token selector").click()
 
@@ -332,13 +370,39 @@ with sync_playwright() as playwright:
     assert liquidity_categories.evaluate("el => el.scrollLeft") > 0
     mobile.screenshot(path=OUTPUT / "liquidity-list-mobile.png", full_page=False)
 
+    mobile.goto(f"{BASE_URL}currencies", wait_until="networkidle")
+    currency_categories = mobile.get_by_role("group", name="Currency group")
+    assert currency_categories.locator("button").first.evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
+    assert mobile.locator(".currency-row").nth(1).evaluate("el => el.getBoundingClientRect().height") >= 87
+    mobile.screenshot(path=OUTPUT / "currencies-mobile.png", full_page=True)
+
     mobile.goto(f"{BASE_URL}pool/eth-usdc", wait_until="networkidle")
     mobile.get_by_role("button", name="Activity", exact=True).click()
     activity_categories = mobile.get_by_role("group", name="Activity type")
     assert activity_categories.evaluate("el => el.scrollWidth > el.clientWidth")
     activity_categories.evaluate("el => { el.scrollLeft = 140 }")
     assert activity_categories.evaluate("el => el.scrollLeft") > 0
+    activity_title = mobile.locator(".activity-workspace .panel-title-row h2").bounding_box()
+    activity_filters = mobile.locator(".activity-workspace .panel-title-row .ds-segmented").bounding_box()
+    activity_table = mobile.locator(".activity-workspace .activity-table").bounding_box()
+    assert activity_title and activity_filters and activity_table
+    assert abs(activity_title["x"] - activity_filters["x"]) < 1
+    assert abs(activity_filters["x"] - activity_table["x"]) < 1
     mobile.screenshot(path=OUTPUT / "pool-activity-mobile.png", full_page=False)
+
+    mobile.goto(f"{BASE_URL}portfolio", wait_until="networkidle")
+    if mobile.get_by_role("button", name="Connect wallet", exact=True).count():
+        mobile.get_by_role("button", name="Connect wallet", exact=True).click()
+    mobile.get_by_role("button", name="Saved & alerts", exact=True).click()
+    saved_card = mobile.locator(".portfolio-panel > .context-actions article").first
+    assert saved_card.evaluate("el => getComputedStyle(el).display") == "grid"
+    saved_copy = saved_card.locator("div").bounding_box()
+    saved_action = saved_card.locator(".ds-button, .ds-badge").bounding_box()
+    assert saved_copy and saved_action and saved_action["y"] >= saved_copy["y"] + saved_copy["height"]
+    mobile.screenshot(path=OUTPUT / "portfolio-saved-mobile.png", full_page=True)
+    mobile.get_by_role("button", name="Creator", exact=True).click()
+    assert_no_page_overflow(mobile, "390/portfolio-creator")
+    mobile.screenshot(path=OUTPUT / "portfolio-creator-mobile.png", full_page=True)
 
     mobile.goto(f"{BASE_URL}launch/eth", wait_until="networkidle")
     assert_text(mobile, ".token-trade-card", "Trade ETH")
@@ -346,6 +410,28 @@ with sync_playwright() as playwright:
     trade_box = mobile.locator(".trade-sidebar").bounding_box()
     assert progress_box and trade_box and progress_box["y"] + progress_box["height"] <= trade_box["y"]
     mobile.screenshot(path=OUTPUT / "launch-token-mobile.png", full_page=True)
+
+    mobile_routes = [
+        "explore", "swap", "portfolio", "create", "launch", "launch/create",
+        "launch/eth", "currencies", "currency/usdc", "fees", "pool/eth-usdc", "position/8420",
+    ]
+    for width in [390, 320]:
+        audit = browser.new_page(viewport={"width": width, "height": 844}, device_scale_factor=1)
+        audit.on("pageerror", lambda error: mobile_errors.append(str(error)))
+        audit.on("console", lambda message: mobile_console_errors.append(message.text) if message.type == "error" else None)
+        for route in mobile_routes:
+            audit.goto(f"{BASE_URL}{route}", wait_until="networkidle")
+            assert_no_page_overflow(audit, f"{width}/{route}")
+            if width == 390:
+                audit.screenshot(path=OUTPUT / f"mobile-audit-{route.replace('/', '-')}.png", full_page=True)
+        audit.goto(f"{BASE_URL}create", wait_until="networkidle")
+        audit.get_by_role("button", name="Advanced", exact=True).click()
+        assert_no_page_overflow(audit, f"{width}/create-advanced-almm")
+        audit.locator(".model-card").filter(has_text="Range liquidity").click()
+        audit.get_by_role("button", name="Schedule", exact=True).last.click()
+        assert_no_page_overflow(audit, f"{width}/create-advanced-arl-scheduled")
+        audit.screenshot(path=OUTPUT / f"mobile-audit-{width}-create-arl.png", full_page=True)
+        audit.close()
 
     assert not page_errors, page_errors
     assert not console_errors, console_errors

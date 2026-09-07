@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ArrowUpRight, CalendarClock, Check, ChevronDown, Coins, ImagePlus, Rocket, Sparkles, Star } from 'lucide-react'
 import { Badge, BrandSurface, Button, DropdownSelect, PageTabs, Panel, QuickSelect, SearchField, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
 import { FlowSteps, MiniTrend } from '../components/Common.jsx'
@@ -26,6 +26,16 @@ export default function LaunchPage({ navigate, watchedLaunches, toggleWatchedLau
   const [imageName, setImageName] = useState('')
   const [launchPreset, setLaunchPreset] = useState('Balanced discovery · Compounding pool')
   const [reviewOpen, setReviewOpen] = useState(false)
+  useEffect(() => {
+    const syncSectionFromUrl = () => setSection(window.location.hash.includes('/launch/create') ? 'Create launch' : window.location.hash.includes('/launch/watching') ? 'Watching' : 'Markets')
+    window.addEventListener('hashchange', syncSectionFromUrl)
+    window.addEventListener('popstate', syncSectionFromUrl)
+    syncSectionFromUrl()
+    return () => {
+      window.removeEventListener('hashchange', syncSectionFromUrl)
+      window.removeEventListener('popstate', syncSectionFromUrl)
+    }
+  }, [])
   const selectQuickRoute = (route) => {
     setQuickRoute(route)
     document.getElementById('launch-lifecycle')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
