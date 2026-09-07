@@ -119,6 +119,18 @@ with sync_playwright() as playwright:
     assert page.locator("#advanced-almm-flow .builder-input-suffix strong").evaluate("el => getComputedStyle(el).whiteSpace") == "nowrap"
     assert page.locator(".strategy-image img").first.evaluate("el => getComputedStyle(el).objectFit") == "contain"
     assert page.locator(".strategy-image img").first.evaluate("el => getComputedStyle(el).transform") == "none"
+    for visual in page.locator(".strategy-image").all():
+        visual_box = visual.bounding_box()
+        image_box = visual.locator("img").bounding_box()
+        assert visual_box and image_box
+        assert image_box["width"] < visual_box["width"] * .8
+        assert image_box["height"] < visual_box["height"] * .75
+        visual_center_x = visual_box["x"] + visual_box["width"] / 2
+        visual_center_y = visual_box["y"] + visual_box["height"] / 2
+        image_center_x = image_box["x"] + image_box["width"] / 2
+        image_center_y = image_box["y"] + image_box["height"] / 2
+        assert abs(visual_center_x - image_center_x) < 1
+        assert abs(visual_center_y - image_center_y) < 1
     for heading in page.locator(".model-card__heading").all():
         title_box = heading.locator("h3").bounding_box()
         badge_box = heading.locator(".ds-badge").bounding_box()
@@ -217,8 +229,18 @@ with sync_playwright() as playwright:
     assert page.locator(".launch-full-field").is_visible()
     page.locator("#launch-token-image").set_input_files("public/ammora-logo-optimized.webp")
     assert_text(page, ".file-upload", "ammora-logo-optimized.webp")
-    page.get_by_role("button", name="Select quote asset").click()
+    quote_asset_button = page.get_by_role("button", name="Select quote asset")
+    quote_asset_button.scroll_into_view_if_needed()
+    page.wait_for_timeout(100)
+    review_before_dropdown = page.locator(".launch-create-review").bounding_box()
+    quote_asset_button.click()
     assert page.locator('[role="listbox"] .asset-mark').count() == 3
+    review_after_dropdown = page.locator(".launch-create-review").bounding_box()
+    assert review_before_dropdown and review_after_dropdown
+    assert abs(review_before_dropdown["x"] - review_after_dropdown["x"]) < 1
+    assert abs(review_before_dropdown["y"] - review_after_dropdown["y"]) < 1
+    assert page.locator(".launch-create-builder").evaluate("el => getComputedStyle(el).overflow") == "visible"
+    page.screenshot(path=OUTPUT / "launch-quote-dropdown.png", full_page=False)
     page.get_by_role("option", name="USDC").click()
     assert page.get_by_role("button", name="Select quote asset").locator(".asset-mark--usdc").count() == 1
     page.get_by_role("button", name="Review transactions").click()
