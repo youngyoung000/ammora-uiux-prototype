@@ -220,8 +220,8 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
 .model-card ul { padding: 4px 0 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; color: var(--ink); font-size: 14px; font-weight: 700; }
 .model-visual { height: 176px; margin: -24px -24px 22px; border-bottom: 1px solid var(--line); background: var(--surface-neutral-gradient); overflow: hidden; }
 .strategy-image { display: grid; place-items: center; }
-.strategy-image img { width: 92%; height: 92%; object-fit: contain; object-position: center; opacity: .9; }
-.strategy-image--arl img { transform: translateX(5%); }
+.strategy-image img { width: 92%; height: 92%; object-fit: contain; object-position: center; opacity: .9; transform: translateY(-12px); }
+.strategy-image--arl img { transform: translateY(-12px); }
 .config-preview { margin-top: 50px; padding: 28px; display: grid; grid-template-columns: 1.5fr .65fr; gap: 36px; }
 .pair-inputs { margin: 24px 0 14px; display: grid; grid-template-columns: 1fr 28px 1fr; align-items: center; gap: 10px; }
 .pair-inputs button { height: 58px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: 10px; display: flex; align-items: center; gap: 10px; background: var(--surface); font-weight: 700; cursor: pointer; transition: background .18s ease, border-color .18s ease; }
@@ -789,11 +789,21 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
 .vault-builder aside { padding: 20px; border-radius: 12px; background: var(--surface-soft); }
 .vault-builder aside h2 { margin: 12px 0; }
 .pool-config-fields { margin-top: 20px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
-.pair-inputs label { min-height: 58px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 10px; display: flex; align-items: center; gap: 10px; background: var(--surface); }
-.pair-inputs label:hover { border-color: var(--key-solid); background: var(--surface-brand-subtle); }
-.pair-inputs label select { width: 100%; border: 0; outline: 0; color: var(--ink-strong); background: transparent; font-weight: 750; }
+.pair-select { min-width: 0; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 10px; }
+.pair-select > svg { color: var(--ink-soft); }
+.pair-select .ds-select > button { min-height: 58px; }
 .launch-upload { margin: 14px 0 24px; }
-.launch-upload input { padding: 10px; border: 1px dashed var(--line-strong); border-radius: 9px; }
+.launch-upload > input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.file-upload { min-height: 76px; padding: 13px 15px; border: 1px dashed var(--line-strong); border-radius: 10px; display: flex; align-items: center; gap: 13px; color: var(--ink-strong); background: var(--surface); cursor: pointer; transition: border-color var(--motion-base), background var(--motion-base); }
+.file-upload:hover, .file-upload:focus-within { border-color: var(--key-solid); background: var(--surface-brand-subtle); }
+.file-upload__icon { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 9px; display: grid; place-items: center; background: var(--surface); }
+.file-upload > span:last-child { min-width: 0; }
+.file-upload strong, .file-upload small { display: block; }
+.file-upload strong { max-width: 520px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-upload small { margin-top: 2px; color: var(--ink-muted); font-weight: 500; }
+.window-select .ds-select { width: 92px; }
+.window-select .ds-select > button { min-height: 44px; padding-left: 12px; }
+.config-preview { overflow: visible; }
 .swap-title-actions { display: flex; align-items: center; gap: 10px; }
 .swap-title-actions > button { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; background: var(--surface); cursor: pointer; }
 .swap-setting-row { margin: 14px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }

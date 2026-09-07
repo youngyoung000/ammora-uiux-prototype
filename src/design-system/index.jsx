@@ -1,5 +1,5 @@
-import React from 'react'
-import { ArrowRight, Search } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { ArrowRight, Check, ChevronDown, Search } from 'lucide-react'
 
 export function Button({ children, variant = 'primary', size = 'md', icon, className = '', ...props }) {
   return <button className={`ds-button ds-button--${variant} ds-button--${size} ${className}`} {...props}>{children}{icon || (variant === 'primary' ? <ArrowRight size={17} /> : null)}</button>
@@ -65,6 +65,22 @@ export function SearchField({ value, onChange, placeholder = 'Search', className
 
 export function SegmentedControl({ items, value, onChange, label }) {
   return <div className="ds-segmented" role="group" aria-label={label}>{items.map((item) => <button key={item} className={value === item ? 'active' : ''} onClick={() => onChange(item)}>{item}</button>)}</div>
+}
+
+export function DropdownSelect({ value, onChange, options, label, className = '' }) {
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef(null)
+  const normalized = options.map((option) => typeof option === 'string' ? { value: option, label: option } : option)
+  const selected = normalized.find((option) => option.value === value) || normalized[0]
+  useEffect(() => {
+    const close = (event) => !rootRef.current?.contains(event.target) && setOpen(false)
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
+  }, [])
+  return <div className={`ds-select ${open ? 'is-open' : ''} ${className}`} ref={rootRef}>
+    <button type="button" aria-label={label} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}><span>{selected?.label}</span><ChevronDown size={17} /></button>
+    {open && <div className="ds-select__menu" role="listbox" aria-label={label}>{normalized.map((option) => <button type="button" role="option" aria-selected={option.value === value} key={option.value} onClick={() => { onChange(option.value); setOpen(false) }}><span><strong>{option.label}</strong>{option.description && <small>{option.description}</small>}</span>{option.value === value && <Check size={16} />}</button>)}</div>}
+  </div>
 }
 
 export function TokenIcon({ symbol, color = '#5d8dff' }) {

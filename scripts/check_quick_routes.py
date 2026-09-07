@@ -80,6 +80,10 @@ with sync_playwright() as playwright:
     page.get_by_role("button", name="Direct pool").click()
     assert_text(page, "#swap-settings .advanced-content", "1 verified pool")
     assert_text(page, ".quote-summary", "USDC")
+    page.get_by_role("button", name="Connect wallet", exact=True).click()
+    page.get_by_role("button", name="Review swap").click()
+    assert_text(page, ".action-dialog", "Minimum received")
+    page.get_by_role("button", name="Close").click()
     page.screenshot(path=OUTPUT / "swap-desktop.png", full_page=True)
 
     page.goto(f"{BASE_URL}create", wait_until="networkidle")
@@ -105,6 +109,17 @@ with sync_playwright() as playwright:
     for label in ["Powered by ALMM", "Powered by ARL"]:
         assert "linear-gradient" in page.get_by_text(label, exact=True).evaluate("el => getComputedStyle(el).backgroundImage")
     page.evaluate("document.documentElement.dataset.theme = 'light'")
+    assert page.locator("select").count() == 0
+    page.get_by_role("button", name="Select price step").click()
+    assert page.get_by_role("listbox", name="Select price step").is_visible()
+    page.get_by_role("option", name="50 bps Wider active bins").click()
+    page.get_by_role("button", name="Review transactions").click()
+    assert_text(page, ".action-dialog", "Review pool transactions")
+    page.get_by_role("button", name="Prepare wallet transactions").click()
+    assert_text(page, ".action-success", "Ready for wallet review")
+    page.get_by_role("button", name="Done").click()
+    page.evaluate("window.scrollTo(0, 0)")
+    page.wait_for_timeout(200)
     page.screenshot(path=OUTPUT / "create-advanced-desktop.png", full_page=True)
 
     page.goto(f"{BASE_URL}fees", wait_until="networkidle")
@@ -113,6 +128,7 @@ with sync_playwright() as playwright:
     page.get_by_role("button", name="Create vault").click()
     assert_text(page, ".vault-builder", "Recipients")
     assert_text(page, ".vault-builder", "Total share")
+    page.get_by_role("button", name="0x8F2…91A").click()
 
     page.goto(f"{BASE_URL}portfolio", wait_until="networkidle")
     assert page.locator(".connect-banner").count() == 0
@@ -141,8 +157,17 @@ with sync_playwright() as playwright:
     assert page.locator(".launch-create-builder").is_visible()
     page.get_by_role("button", name="Launch with first buy").click()
     assert page.locator(".launch-full-field").is_visible()
+    page.locator("#launch-token-image").set_input_files("public/ammora-logo-optimized.webp")
+    assert_text(page, ".file-upload", "ammora-logo-optimized.webp")
+    page.get_by_role("button", name="Select quote asset").click()
+    page.get_by_role("option", name="USDC").click()
+    page.get_by_role("button", name="Review transactions").click()
+    assert_text(page, ".action-dialog", "Review launch transactions")
+    page.get_by_role("button", name="Close").click()
     page.locator("#launch-lifecycle summary").click()
     assert_text(page, "#launch-lifecycle", "Launch with first buy")
+    page.evaluate("window.scrollTo(0, 0)")
+    page.wait_for_timeout(200)
     page.screenshot(path=OUTPUT / "launch-desktop.png", full_page=True)
 
     page.goto(f"{BASE_URL}launch/create", wait_until="networkidle")

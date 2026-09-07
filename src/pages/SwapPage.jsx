@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Check, ChevronDown, Search, Settings2, X } from 'lucide-react'
 import { Button, Panel, SegmentedControl } from '../design-system/index.jsx'
+import ActionDialog from '../components/ActionDialog.jsx'
 
 const tokenCatalog = [
   { symbol: 'ETH', name: 'Ether', address: '0x0000...0000', balance: '6.842', type: 'eth' },
@@ -21,6 +22,7 @@ export default function SwapPage({ connected, setConnected }) {
   const [tokenModal, setTokenModal] = useState(null)
   const [slippage, setSlippage] = useState('0.5%')
   const [deadline, setDeadline] = useState('20')
+  const [reviewOpen, setReviewOpen] = useState(false)
   const rates = { 'ETH-USDC': 4284.22, 'USDC-GIWA': 1.2842, 'USDT-USDC': 1.0003, 'GIWA-USDC': .7787 }
   const rate = rates[`${payToken}-${receiveToken}`] || 1.2842
   const received = amount ? (Number(amount) * rate).toLocaleString(undefined, { maximumFractionDigits: 4 }) : ''
@@ -52,13 +54,14 @@ export default function SwapPage({ connected, setConnected }) {
             <summary><span><Settings2 size={17} />Route & transaction details</span><ChevronDown size={17} /></summary>
             <div className="advanced-content"><SegmentedControl items={['Best price', 'Direct pool']} value={routeMode} onChange={setRouteMode} label="Swap route" /><div className="swap-setting-row"><span>Slippage</span><SegmentedControl items={['0.1%', '0.5%', '1%', 'Custom']} value={slippage} onChange={setSlippage} label="Slippage" /></div><label className="inline-setting"><span>Deadline</span><input value={deadline} onChange={(event) => setDeadline(event.target.value.replace(/\D/g, ''))} /><strong>minutes</strong></label><dl><div><dt>Route</dt><dd>{routeMode === 'Best price' ? '3 reviewed routes' : '1 verified pool'}</dd></div><div><dt>Routing fee</dt><dd>0.05%</dd></div><div><dt>Approval</dt><dd>Prepared separately</dd></div></dl></div>
           </details>
-          <Button className="full-button" onClick={() => setConnected(true)}>{connected ? 'Review swap' : 'Connect wallet'}</Button>
+          <Button className="full-button" onClick={() => connected ? setReviewOpen(true) : setConnected(true)}>{connected ? 'Review swap' : 'Connect wallet'}</Button>
           <p className="action-assurance"><Check size={15} />Minimum received and route are checked again before signing.</p>
         </div>
       </div>
     </Panel>
     <details className="advanced-disclosure recent-swap-disclosure"><summary><span>Recent swaps</span><ChevronDown size={17} /></summary><div className="advanced-content timeline-list"><article><Check size={17} /><div><strong>0.5 ETH → 2,142.11 USDC</strong><span>Best route · Confirmed</span></div><time>This session</time></article></div></details>
     {tokenModal && <TokenSelectorModal side={tokenModal} selected={tokenModal === 'pay' ? payToken : receiveToken} onSelect={chooseToken} onClose={() => setTokenModal(null)} />}
+    {reviewOpen && <ActionDialog title="Review swap" description="Approval and swap are shown as separate wallet steps when required." rows={[["You pay", `${amount} ${payToken}`], ["You receive", `${received} ${receiveToken}`], ["Minimum received", `${minimum} ${receiveToken}`], ["Route", routeMode]]} action="Prepare wallet transaction" onClose={() => setReviewOpen(false)} />}
   </>
 }
 

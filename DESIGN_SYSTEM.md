@@ -60,6 +60,16 @@ Use the semantic surface according to intent:
 | Token or class | Use | Examples |
 | --- | --- | --- |
 | `.ds-brand-surface` / `--surface-brand` | Compact, high-emphasis brand identity; fill the complete border box with no transparent rim | `Recommended`, `Powered by ALMM`, `Powered by ARL`, current-price labels |
+
+### Dropdowns and uploads
+
+- Use the shared `DropdownSelect` component instead of a native `select`. The trigger, chevron, open menu, selected option, hover, focus, and dark theme are controlled by the design system.
+- File inputs remain visually hidden. A product-language `.file-upload` label presents `Choose image`, the selected filename, replacement guidance, and accepted formats without inheriting operating-system language.
+- Dropdown triggers use a 54px control height by default and reserve fixed space for the chevron so long values never displace it.
+
+### Transaction completion
+
+Primary write actions open the shared `ActionDialog`. The normal prototype path is `Review → Prepare wallet transaction → Ready for wallet review → Done`; approval, target, network, and protection details remain visible before the final step.
 | `--surface-brand-subtle` | Hover, focus, and selected backgrounds | Quick-select cards, strategy cards, fields, rows |
 | `--surface-brand-vertical` | Data visualization emphasis | In-range liquidity bars |
 | `--surface-neutral-gradient` | Neutral illustration stage only | Strategy graphic backgrounds |

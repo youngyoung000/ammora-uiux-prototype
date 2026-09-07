@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { ArrowLeft, CalendarClock, ChevronDown, Coins, Gauge, ShieldCheck, Waves } from 'lucide-react'
-import { Badge, Button, PageTabs, Panel, QuickSelect, SectionHeading, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
+import { Badge, Button, DropdownSelect, PageTabs, Panel, QuickSelect, SectionHeading, SegmentedControl, WorkspaceHeader } from '../design-system/index.jsx'
 import { FlowSteps } from '../components/Common.jsx'
+import ActionDialog from '../components/ActionDialog.jsx'
 
 export default function CreatePage({ navigate }) {
   const [mode, setMode] = useState('ALMM')
@@ -12,6 +13,7 @@ export default function CreatePage({ navigate }) {
   const [secondToken, setSecondToken] = useState('USDC')
   const [binStep, setBinStep] = useState('25 bps')
   const [range, setRange] = useState('±20%')
+  const [reviewOpen, setReviewOpen] = useState(false)
   const selectPreset = (nextPreset) => {
     setPreset(nextPreset)
     if (nextPreset === 'stable') { setMode('ALMM'); setStart('Start now') }
@@ -39,7 +41,20 @@ export default function CreatePage({ navigate }) {
         <Panel className={mode === 'ARL' ? 'model-card selected' : 'model-card'} role="button" tabIndex="0" aria-pressed={mode === 'ARL'} onClick={() => setMode('ARL')} onKeyDown={(event) => event.key === 'Enter' && setMode('ARL')}><div className="model-visual strategy-image strategy-image--arl"><img src="/strategy-arl-optimized.webp" alt="Range liquidity distribution" /></div><Badge>Powered by ARL</Badge><h3>Range liquidity</h3><p>Choose the exact price range where your capital should earn trading fees.</p><ul><li>Custom price range</li><li>Single or dual-sided</li><li>Position NFT</li></ul></Panel>
       </div>
     </section>}
-    <Panel className="config-preview"><div><SectionHeading title="Select assets" /><div className="pair-inputs"><label><Coins size={20} /><select value={firstToken} onChange={(event) => setFirstToken(event.target.value)}><option>ETH</option><option>GIWA</option><option>WBTC</option></select></label><span className="pair-divider">+</span><label><Coins size={20} /><select value={secondToken} onChange={(event) => setSecondToken(event.target.value)}><option>USDC</option><option>GIWA</option><option>ETH</option></select></label></div><SegmentedControl items={['Start now', 'Schedule']} value={start} onChange={setStart} label="Opening time" /><div className="pool-config-fields"><label className="builder-field"><span>Opening price</span><div className="builder-input-suffix"><input defaultValue="4,284.22" /><strong>{secondToken}</strong></div></label>{mode === 'ALMM' ? <label className="builder-field"><span>Price step</span><select value={binStep} onChange={(event) => setBinStep(event.target.value)}><option>10 bps</option><option>25 bps</option><option>50 bps</option><option>100 bps</option></select></label> : <label className="builder-field"><span>Price range</span><select value={range} onChange={(event) => setRange(event.target.value)}><option>±20%</option><option>±50%</option><option>±80%</option><option>Custom</option></select></label>}{start === 'Schedule' && <label className="builder-field"><span>Trading opens</span><input type="datetime-local" defaultValue="2026-09-12T10:00" /></label>}</div></div><aside><Gauge size={25} /><h3>Review setup</h3><dl><div><dt>Pair</dt><dd>{firstToken} / {secondToken}</dd></div><div><dt>Strategy</dt><dd>{mode === 'ALMM' ? 'Dynamic' : 'Range'}</dd></div><div><dt>{mode === 'ALMM' ? 'Price step' : 'Price range'}</dt><dd>{mode === 'ALMM' ? binStep : range}</dd></div><div><dt>Opening</dt><dd>{start}</dd></div></dl><Button className="full-button">Review transactions</Button></aside></Panel>
+    <Panel className="config-preview">
+      <div>
+        <SectionHeading title="Select assets" />
+        <div className="pair-inputs"><div className="pair-select"><Coins size={20} /><DropdownSelect label="Select first token" value={firstToken} onChange={setFirstToken} options={['ETH', 'GIWA', 'WBTC']} /></div><span className="pair-divider">+</span><div className="pair-select"><Coins size={20} /><DropdownSelect label="Select second token" value={secondToken} onChange={setSecondToken} options={['USDC', 'GIWA', 'ETH']} /></div></div>
+        <SegmentedControl items={['Start now', 'Schedule']} value={start} onChange={setStart} label="Opening time" />
+        <div className="pool-config-fields">
+          <label className="builder-field"><span>Opening price</span><div className="builder-input-suffix"><input defaultValue="4,284.22" /><strong>{secondToken}</strong></div></label>
+          {mode === 'ALMM' ? <div className="builder-field"><span>Price step</span><DropdownSelect label="Select price step" value={binStep} onChange={setBinStep} options={[{ value: '10 bps', label: '10 bps', description: 'Tighter price spacing' }, { value: '25 bps', label: '25 bps', description: 'Balanced default' }, { value: '50 bps', label: '50 bps', description: 'Wider active bins' }, { value: '100 bps', label: '100 bps', description: 'High volatility' }]} /></div> : <div className="builder-field"><span>Price range</span><DropdownSelect label="Select price range" value={range} onChange={setRange} options={['±20%', '±50%', '±80%', 'Custom']} /></div>}
+          {start === 'Schedule' && <label className="builder-field"><span>Trading opens</span><input type="datetime-local" defaultValue="2026-09-12T10:00" /></label>}
+        </div>
+      </div>
+      <aside><Gauge size={25} /><h3>Review setup</h3><dl><div><dt>Pair</dt><dd>{firstToken} / {secondToken}</dd></div><div><dt>Strategy</dt><dd>{mode === 'ALMM' ? 'Dynamic' : 'Range'}</dd></div><div><dt>{mode === 'ALMM' ? 'Price step' : 'Price range'}</dt><dd>{mode === 'ALMM' ? binStep : range}</dd></div><div><dt>Opening</dt><dd>{start}</dd></div></dl><Button className="full-button" onClick={() => setReviewOpen(true)}>Review transactions</Button></aside>
+    </Panel>
     <details className="advanced-disclosure create-disclosure"><summary><span><ShieldCheck size={17} />Advanced checks and protocol details</span><ChevronDown size={17} /></summary><div className="advanced-content"><FlowSteps items={[{ title: 'Pair', copy: 'Token order and safety policy are checked.' }, { title: 'Strategy', copy: `Powered by ${mode}. Range and fee rules are verified.` }, { title: 'Funding', copy: 'Amounts, approvals, and minimum shares are reviewed.' }, { title: 'Create', copy: 'Exact transactions are shown before signing.' }]} /></div></details>
+    {reviewOpen && <ActionDialog title="Review pool transactions" description={mode === 'ALMM' ? 'The pool is created first, then the opening position is funded.' : 'The pool and opening position are prepared as one verified plan.'} rows={[["Pair", `${firstToken} / ${secondToken}`], ["Strategy", `${mode === 'ALMM' ? 'Dynamic liquidity · ALMM' : 'Range liquidity · ARL'}`], ["Opening", start], ["Approval", "Prepared separately"]]} action="Prepare wallet transactions" onClose={() => setReviewOpen(false)} />}
   </>
 }

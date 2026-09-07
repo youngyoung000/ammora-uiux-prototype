@@ -34,6 +34,8 @@ requireMatch(components.includes('.ds-brand-surface'), 'Missing shared ds-brand-
 requireMatch(components.includes('background: var(--surface-brand) border-box'), 'Brand surface must fill the complete border box with the CSS gradient token.')
 requireMatch(primitives.includes("tone === 'brand' ? 'ds-brand-surface'"), 'Brand badges must opt into ds-brand-surface.')
 requireMatch(primitives.includes('<Badge size="sm" className="quick-select__recommended">Recommended</Badge>'), 'Recommended must use the shared Badge component.')
+requireMatch(primitives.includes('export function DropdownSelect'), 'Dropdowns must use the shared DropdownSelect component.')
+requireMatch(!allSource.includes('<select'), 'Native select elements are not allowed; use DropdownSelect for consistent menus and chevrons.')
 requireMatch(createPage.match(/<Badge>Powered by ALMM<\/Badge>/), 'Powered by ALMM must use the shared brand Badge.')
 requireMatch(createPage.match(/<Badge>Powered by ARL<\/Badge>/), 'Powered by ARL must use the shared brand Badge.')
 requireMatch(poolPage.includes('<BrandSurface>Current price</BrandSurface>'), 'Current price label must use the shared BrandSurface component.')

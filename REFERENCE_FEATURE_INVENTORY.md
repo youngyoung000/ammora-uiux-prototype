@@ -34,3 +34,5 @@ Hidden or experimental surfaces in the reference runtime (for example NFT and un
 ## Prototype behavior
 
 All wallet and transaction operations are interactive review simulations. No real assets are moved. Every write action ends at a wallet-review state showing network, target context, safety checks, and user-controlled confirmation.
+
+Pool creation, launch creation, swaps, liquidity positions, fee-vault creation, claims, alerts, position tools, and creator actions all expose this normal review path. Shared dropdown and upload controls avoid browser- or operating-system-specific presentation.

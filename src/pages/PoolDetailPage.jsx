@@ -31,12 +31,13 @@ export default function PoolDetailPage({ poolId, navigate, connected, setConnect
   const [maxRange, setMaxRange] = useState(percentAt(4760))
   const [activityType, setActivityType] = useState('Swaps')
   const [dialog, setDialog] = useState(null)
+  const [saved, setSaved] = useState(false)
   const minPrice = priceAt(minRange)
   const maxPrice = priceAt(maxRange)
 
   return <>
     <button className="back-link" onClick={() => navigate('explore')}><ArrowLeft size={17} />Back to liquidity</button>
-    <WorkspaceHeader title={pair} meta={<><StatusDot>Pool live</StatusDot><Badge tone="neutral">Dynamic liquidity · ALMM</Badge></>} actions={<><Button variant="secondary" onClick={() => setDialog('Create pool alert')} icon={<Bell size={16} />}>Alert</Button><Button variant="secondary" icon={<Star size={16} />}>Save</Button><Button onClick={() => navigate('swap')}>Trade</Button></>} />
+    <WorkspaceHeader title={pair} meta={<><StatusDot>Pool live</StatusDot><Badge tone="neutral">Dynamic liquidity · ALMM</Badge></>} actions={<><Button variant="secondary" onClick={() => setDialog('Create pool alert')} icon={<Bell size={16} />}>Alert</Button><Button variant="secondary" onClick={() => setSaved(!saved)} icon={<Star size={16} fill={saved ? 'currentColor' : 'none'} />}>{saved ? 'Saved' : 'Save'}</Button><Button onClick={() => navigate('swap')}>Trade</Button></>} />
     <div className="metrics-grid four pool-metrics"><Metric label="Total liquidity" value="$12.84M" note="Available to trade" /><Metric label="24H volume" value="$28.43M" note="1,284 swaps" /><Metric label="24H fees" value="$42.8K" note="Pool total" /><Metric label="Observed APR" value="18.42%" note="Pool-wide estimate" tone="positive" /></div>
     <PageTabs items={['Overview', 'Liquidity', 'Activity', 'Positions', 'Manage pool']} value={tab} onChange={setTab} label="Pool details" />
     {tab === 'Liquidity' && <div className="pool-detail-grid">
@@ -59,7 +60,7 @@ export default function PoolDetailPage({ poolId, navigate, connected, setConnect
         {depositMode === 'Both tokens' && <LiquidityAmount label="USDC amount" token="USDC" value={quoteAmount} onChange={setQuoteAmount} balance="18,420 USDC" />}
         <div className="position-preview"><span>Estimated position</span><strong>${(Number(amount || 0) * 4284.22 + (depositMode === 'Both tokens' ? Number(quoteAmount.replaceAll(',', '') || 0) : 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong><small>{strategy} distribution · active around current price</small></div>
         <dl className="liquidity-review"><div><dt>Price coverage</dt><dd>{minPrice.toLocaleString()}–{maxPrice.toLocaleString()}</dd></div><div><dt>Pool fee</dt><dd>0.05% + dynamic</dd></div><div><dt>Position</dt><dd>NFT</dd></div></dl>
-        <Button className="full-button" onClick={() => setConnected(true)}>{connected ? 'Review position' : 'Connect wallet'}</Button>
+        <Button className="full-button" onClick={() => connected ? setDialog('Review liquidity position') : setConnected(true)}>{connected ? 'Review position' : 'Connect wallet'}</Button>
         <p className="action-assurance"><Check size={15} />Range, fees, and minimum shares are checked before signing.</p>
       </Panel>
     </div>}

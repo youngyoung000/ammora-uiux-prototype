@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Info, Plus, Star } from 'lucide-react'
-import { Button, Metric, PageTabs, Panel, SearchField, SegmentedControl } from '../design-system/index.jsx'
+import { Button, DropdownSelect, Metric, PageTabs, Panel, SearchField, SegmentedControl } from '../design-system/index.jsx'
 import { MiniTrend, TableActions, TokenPair } from '../components/Common.jsx'
 import { pools } from '../data.js'
 
@@ -10,6 +10,7 @@ export default function ExplorePage({ navigate }) {
   const [sort, setSort] = useState('TVL')
   const [saved, setSaved] = useState([])
   const [view, setView] = useState('Pools')
+  const [window, setWindow] = useState('24H')
 
   const numberValue = (value) => Number(value.replace(/[$,%]/g, '').replace('M', '000000').replace('K', '000'))
   const visible = useMemo(() => pools
@@ -30,7 +31,7 @@ export default function ExplorePage({ navigate }) {
     </Panel>
     <PageTabs items={['Pools', 'Saved', 'Top yield']} value={view} onChange={selectView} label="Liquidity views" />
     <Panel className="market-panel" id="market-results">
-      <div className="market-toolbar"><div className="market-toolbar__left"><SearchField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search token or pool" /><SegmentedControl items={['All strategies', 'Dynamic liquidity', 'Range liquidity']} value={model} onChange={setModel} label="Liquidity strategy" /><button className="saved-filter" onClick={() => setView('Saved')}><Star size={17} />Saved {saved.length > 0 && <em>{saved.length}</em>}</button></div><div className="market-toolbar__right"><SegmentedControl items={['TVL', 'Volume', 'Fees', 'APR', 'New']} value={sort} onChange={setSort} label="Sort pools" /><label className="window-select"><span>Window</span><select><option>24H</option><option>7D</option><option>30D</option></select></label></div></div>
+      <div className="market-toolbar"><div className="market-toolbar__left"><SearchField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search token or pool" /><SegmentedControl items={['All strategies', 'Dynamic liquidity', 'Range liquidity']} value={model} onChange={setModel} label="Liquidity strategy" /><button className="saved-filter" onClick={() => setView('Saved')}><Star size={17} />Saved {saved.length > 0 && <em>{saved.length}</em>}</button></div><div className="market-toolbar__right"><SegmentedControl items={['TVL', 'Volume', 'Fees', 'APR', 'New']} value={sort} onChange={setSort} label="Sort pools" /><div className="window-select"><span>Window</span><DropdownSelect label="Select data window" value={window} onChange={setWindow} options={['1H', '2H', '24H', '7D']} /></div></div></div>
       <div className="data-table pool-table" role="table">
         <div className="data-row data-head"><span>Pool</span><span>Strategy</span><span>TVL</span><span>24h volume</span><span>24h fees</span><span>APR</span><span>Trend</span><span /></div>
         {visible.map((pool) => <div className="data-row" key={pool.pair} onClick={() => navigate(`pool/${pool.pair.toLowerCase().replaceAll(' ', '').replace('/', '-')}`)}><div className="pool-name"><TokenPair first={pool.first} second={pool.second} /><div><strong>{pool.pair}</strong><small>GIWA · {pool.fee} fee</small></div></div><div className="strategy-cell"><strong>{pool.type === 'ALMM' ? 'Dynamic' : 'Range'}</strong><small>Powered by {pool.type}</small></div><strong>{pool.tvl}</strong><span>{pool.volume}</span><span>{pool.fees}</span><span className="positive-value">{pool.apr}</span><MiniTrend values={pool.trend} /><TableActions saved={saved.includes(pool.pair)} onSave={(event) => { event?.stopPropagation(); toggleSaved(pool.pair) }} /></div>)}

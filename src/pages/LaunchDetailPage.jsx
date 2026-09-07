@@ -24,6 +24,7 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
   const [amount, setAmount] = useState('5000')
   const [section, setSection] = useState('Transactions')
   const [dialog, setDialog] = useState(null)
+  const [watched, setWatched] = useState(false)
   const unitPrice = token.unitPrice || 0.1284
   const estimate = tradeMode === 'Buy' ? (Number(amount || 0) / unitPrice).toLocaleString(undefined, { maximumFractionDigits: 4 }) : (Number(amount || 0) * unitPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })
   const selectTradeMode = (mode) => {
@@ -33,7 +34,7 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
 
   return <>
     <button className="back-link" onClick={() => navigate('launch')}><ArrowLeft size={17} />Back to launches</button>
-    <WorkspaceHeader title={`${displaySymbol} / ${token.quote}`} actions={<><Button variant="secondary" icon={<Star size={17} />}>Watch</Button><Button variant="secondary" icon={<Share2 size={17} />}>Share</Button></>} />
+    <WorkspaceHeader title={`${displaySymbol} / ${token.quote}`} actions={<><Button variant="secondary" onClick={() => setWatched(!watched)} icon={<Star size={17} fill={watched ? 'currentColor' : 'none'} />}>{watched ? 'Watching' : 'Watch'}</Button><Button variant="secondary" onClick={() => setDialog('Share market link')} icon={<Share2 size={17} />}>Share</Button></>} />
 
     <div className="detail-metrics metrics-grid four">
       <Metric label="Current price" value={token.price} note={token.change} tone="positive" />
@@ -102,7 +103,7 @@ export default function LaunchDetailPage({ symbol, navigate, connected, setConne
           <div className="amount-presets">{(tradeMode === 'Buy' ? ['1,000', '5,000', '10,000', 'Max'] : ['0.1', '0.5', '1', 'Max']).map((item) => <button key={item} onClick={() => item !== 'Max' && setAmount(item.replace(',', ''))}>{item}</button>)}</div>
           <div className="trade-estimate"><span>You receive</span><strong>{estimate} {tradeMode === 'Buy' ? displaySymbol : token.quote}</strong></div>
           <dl className="trade-review"><div><dt>Price impact</dt><dd>0.18%</dd></div><div><dt>Minimum received</dt><dd>{(Number(estimate.replaceAll(',', '')) * .995).toLocaleString(undefined, { maximumFractionDigits: 2 })}</dd></div><div><dt>Trading fee</dt><dd>0.30%</dd></div></dl>
-          <Button className="full-button" onClick={() => setConnected(true)}>{connected ? `Review ${tradeMode.toLowerCase()}` : 'Connect wallet'}</Button>
+          <Button className="full-button" onClick={() => connected ? setDialog(`Review ${tradeMode.toLowerCase()}`) : setConnected(true)}>{connected ? `Review ${tradeMode.toLowerCase()}` : 'Connect wallet'}</Button>
           <p className="trade-notice"><Check size={15} />Quote, minimum output, fee, and token policy are checked again before signing.</p>
         </Panel>
       </aside>
