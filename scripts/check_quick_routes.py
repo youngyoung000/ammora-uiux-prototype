@@ -124,7 +124,7 @@ with sync_playwright() as playwright:
         image_box = visual.locator("img").bounding_box()
         assert visual_box and image_box
         assert image_box["width"] < visual_box["width"] * .8
-        assert 215 <= image_box["height"] <= 217
+        assert 258 <= image_box["height"] <= 260
         assert image_box["height"] < visual_box["height"]
         visual_center_x = visual_box["x"] + visual_box["width"] / 2
         visual_center_y = visual_box["y"] + visual_box["height"] / 2

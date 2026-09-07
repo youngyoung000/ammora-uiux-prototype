@@ -219,9 +219,9 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
 .model-card h3 { font-size: 21px; }
 .model-card p { margin-top: 7px; color: var(--ink-soft); font-size: 14px; line-height: 1.65; }
 .model-card ul { padding: 2px 0 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; list-style: none; color: var(--ink); font-size: 14px; font-weight: 700; }
-.model-visual { height: 244px; margin: -20px -20px 18px; border-bottom: 1px solid var(--line); background: var(--surface-neutral-gradient); overflow: hidden; }
+.model-visual { height: 287px; margin: -20px -20px 18px; border-bottom: 1px solid var(--line); background: var(--surface-neutral-gradient); overflow: hidden; }
 .strategy-image { display: grid; place-items: center; }
-.strategy-image img { display: block; width: 76%; height: 216px; margin: auto; object-fit: contain; object-position: center; opacity: .9; transform: none; }
+.strategy-image img { display: block; width: 76%; height: 259px; margin: auto; object-fit: contain; object-position: center; opacity: .9; transform: none; }
 .strategy-image--arl img { object-position: center; transform: none; }
 .config-preview { margin-top: 50px; padding: 28px; display: grid; grid-template-columns: 1.5fr .65fr; gap: 36px; }
 .pair-inputs { margin: 24px 0 14px; display: grid; grid-template-columns: 1fr 28px 1fr; align-items: center; gap: 10px; }
@@ -907,8 +907,8 @@ kbd { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6
   .vault-builder { padding: 16px; }
   .recipient-row { grid-template-columns: 1fr 90px; }
   .recipient-row > button { display: none; }
-  .model-visual { height: 220px; }
-  .strategy-image img { height: 192px; }
+  .model-visual { height: 258px; }
+  .strategy-image img { height: 230px; }
   .choice-grid.spacing-grid, .form-grid.three { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .form-grid.two { grid-template-columns: 1fr; }
   .section-control-row { align-items: stretch; flex-direction: column; }
